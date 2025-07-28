@@ -1,40 +1,33 @@
-import Link from "next/link";
 import { EventWithDetails } from "@/lib/types";
 import { Navigation } from "@/components/layout/Navigation";
 import { createClient } from "@/lib/supabase";
-import { EventDetailsClient } from "@/app/events/[id]/EventDetailsClient";
+import { EventsListingClient } from "./EventsListingClient";
 
-interface EventPageProps {
-  params: Promise<{ id: string }>;
-}
-
-export default async function EventPage({ params }: EventPageProps) {
-  const { id } = await params;
+export default async function EventsPage() {
   const supabase = createClient();
 
   try {
-    // Fetch event details
-    const { data: eventData, error: eventError } = await supabase
+    // Fetch all events
+    const { data: eventsData, error: eventsError } = await supabase
       .from('events')
       .select('*')
-      .eq('id', id)
-      .single();
+      .order('start_date', { ascending: true });
 
-    if (eventError) {
-      throw eventError;
+    if (eventsError) {
+      throw eventsError;
     }
 
-    // Transform event to match EventWithDetails type
-    const event: EventWithDetails = {
-      ...eventData,
-      current_participants: 0, // Will be calculated separately
+    // Transform events to match EventWithDetails type
+    const events: EventWithDetails[] = eventsData?.map(event => ({
+      ...event,
+      current_participants: 0,
       max_teams: 50,
       max_team_size: 3,
       theme: "General",
       prize_pool: "$5,000",
       status: "upcoming",
-      registration_deadline: eventData.start_date,
-      submission_deadline: eventData.end_date,
+      registration_deadline: event.start_date,
+      submission_deadline: event.end_date,
       location: "Virtual (Online)",
       prizes: [
         { place: "1st Place", amount: "$3,000", description: "Best overall project" },
@@ -46,29 +39,26 @@ export default async function EventPage({ params }: EventPageProps) {
         { time: "Day 1 - 10:00 AM", event: "Hacking Begins" },
         { time: "Day 3 - 4:00 PM", event: "Submission Deadline" }
       ],
-      rules_list: eventData.rules ? eventData.rules.split('\n') : []
-    };
+      rules_list: event.rules ? event.rules.split('\n') : []
+    })) || [];
 
     return (
       <div className="min-h-screen bg-gray-50">
         <Navigation showAuthButtons={false} />
-        <EventDetailsClient event={event} eventId={id} />
+        <EventsListingClient events={events} />
       </div>
     );
 
   } catch (error) {
-    console.error('Error fetching event data:', error);
+    console.error('Error fetching events:', error);
     
     return (
       <div className="min-h-screen bg-gray-50">
         <Navigation showAuthButtons={false} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Event Not Found</h2>
-            <p className="text-gray-600 mb-4">The event you're looking for doesn't exist.</p>
-            <Link href="/dashboard" className="text-blue-600 hover:text-blue-800">
-              ← Back to Dashboard
-            </Link>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Events</h2>
+            <p className="text-gray-600 mb-4">Failed to load events. Please try again later.</p>
           </div>
         </div>
       </div>

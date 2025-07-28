@@ -1,14 +1,14 @@
-import Link from "next/link";
 import { EventWithDetails } from "@/lib/types";
 import { Navigation } from "@/components/layout/Navigation";
 import { createClient } from "@/lib/supabase";
-import { EventDetailsClient } from "@/app/events/[id]/EventDetailsClient";
+import { EventEditClient } from "@/app/events/[id]/edit/EventEditClient";
+import Link from "next/link";
 
-interface EventPageProps {
+interface EventEditPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function EventPage({ params }: EventPageProps) {
+export default async function EventEditPage({ params }: EventEditPageProps) {
   const { id } = await params;
   const supabase = createClient();
 
@@ -27,7 +27,7 @@ export default async function EventPage({ params }: EventPageProps) {
     // Transform event to match EventWithDetails type
     const event: EventWithDetails = {
       ...eventData,
-      current_participants: 0, // Will be calculated separately
+      current_participants: 0,
       max_teams: 50,
       max_team_size: 3,
       theme: "General",
@@ -52,7 +52,7 @@ export default async function EventPage({ params }: EventPageProps) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navigation showAuthButtons={false} />
-        <EventDetailsClient event={event} eventId={id} />
+        <EventEditClient event={event} eventId={id} />
       </div>
     );
 
@@ -65,9 +65,9 @@ export default async function EventPage({ params }: EventPageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Event Not Found</h2>
-            <p className="text-gray-600 mb-4">The event you're looking for doesn't exist.</p>
-            <Link href="/dashboard" className="text-blue-600 hover:text-blue-800">
-              ← Back to Dashboard
+            <p className="text-gray-600 mb-4">The event you're trying to edit doesn't exist.</p>
+            <Link href="/events" className="text-blue-600 hover:text-blue-800">
+              ← Back to Events
             </Link>
           </div>
         </div>

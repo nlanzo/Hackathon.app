@@ -37,7 +37,6 @@ export default function Dashboard() {
   }, [user?.id]); // Only depend on user.id, not the entire user object
 
   const fetchDashboardData = async () => {
-    console.log('Fetching dashboard data for user:', user?.id);
     const supabase = createClient();
     
     try {
@@ -141,7 +140,6 @@ export default function Dashboard() {
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
-      console.log('Dashboard data fetch completed');
       setLoading(false);
     }
   };

@@ -1,14 +1,14 @@
-import Link from "next/link";
 import { EventWithDetails } from "@/lib/types";
 import { Navigation } from "@/components/layout/Navigation";
 import { createClient } from "@/lib/supabase";
-import { EventDetailsClient } from "@/app/events/[id]/EventDetailsClient";
+import { TeamManagementClient } from "@/app/events/[id]/team/TeamManagementClient";
+import Link from "next/link";
 
-interface EventPageProps {
+interface TeamManagementPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function EventPage({ params }: EventPageProps) {
+export default async function TeamManagementPage({ params }: TeamManagementPageProps) {
   const { id } = await params;
   const supabase = createClient();
 
@@ -27,7 +27,7 @@ export default async function EventPage({ params }: EventPageProps) {
     // Transform event to match EventWithDetails type
     const event: EventWithDetails = {
       ...eventData,
-      current_participants: 0, // Will be calculated separately
+      current_participants: 0,
       max_teams: 50,
       max_team_size: 3,
       theme: "General",
@@ -52,7 +52,7 @@ export default async function EventPage({ params }: EventPageProps) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navigation showAuthButtons={false} />
-        <EventDetailsClient event={event} eventId={id} />
+        <TeamManagementClient event={event} eventId={id} />
       </div>
     );
 
