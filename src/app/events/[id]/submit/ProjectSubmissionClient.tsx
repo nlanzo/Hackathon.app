@@ -134,6 +134,21 @@ export function ProjectSubmissionClient({ event, eventId }: ProjectSubmissionCli
   };
 
   const validateForm = () => {
+    // Check if event has started
+    const now = new Date();
+    const eventStart = new Date(event.start_date);
+    const eventEnd = new Date(event.end_date);
+
+    if (now < eventStart) {
+      setError(`Submissions are not accepted before the event starts. Event starts on ${formatDate(event.start_date)}`);
+      return false;
+    }
+
+    if (now > eventEnd) {
+      setError(`Submissions are not accepted after the event ends. Event ended on ${formatDate(event.end_date)}`);
+      return false;
+    }
+
     if (!formData.description.trim()) {
       setError('Project description is required');
       return false;
@@ -160,6 +175,13 @@ export function ProjectSubmissionClient({ event, eventId }: ProjectSubmissionCli
     } catch {
       return false;
     }
+  };
+
+  const isSubmissionAllowed = () => {
+    const now = new Date();
+    const eventStart = new Date(event.start_date);
+    const eventEnd = new Date(event.end_date);
+    return now >= eventStart && now <= eventEnd;
   };
 
   const handleSubmit = async () => {
@@ -335,6 +357,44 @@ export function ProjectSubmissionClient({ event, eventId }: ProjectSubmissionCli
                 <p className="font-medium text-gray-900">{formatDate(event.end_date)}</p>
               </div>
             </div>
+            
+            {/* Submission Status */}
+            <div className="mt-4 p-3 rounded-lg border">
+              {(() => {
+                const now = new Date();
+                const eventStart = new Date(event.start_date);
+                const eventEnd = new Date(event.end_date);
+                
+                if (now < eventStart) {
+                  return (
+                    <div className="flex items-center text-orange-700">
+                      <AlertTriangle className="w-4 h-4 mr-2" />
+                      <span className="text-sm font-medium">
+                        Submissions open when event starts on {formatDate(event.start_date)}
+                      </span>
+                    </div>
+                  );
+                } else if (now > eventEnd) {
+                  return (
+                    <div className="flex items-center text-red-700">
+                      <AlertTriangle className="w-4 h-4 mr-2" />
+                      <span className="text-sm font-medium">
+                        Submissions closed - Event ended on {formatDate(event.end_date)}
+                      </span>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div className="flex items-center text-green-700">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                      <span className="text-sm font-medium">
+                        Submissions are currently open
+                      </span>
+                    </div>
+                  );
+                }
+              })()}
+            </div>
           </CardContent>
         </Card>
 
@@ -455,13 +515,18 @@ export function ProjectSubmissionClient({ event, eventId }: ProjectSubmissionCli
                 <Button
                   onClick={handleSubmit}
                   variant="primary"
-                  disabled={loading}
+                  disabled={loading || !isSubmissionAllowed()}
                   className="flex items-center space-x-2"
                 >
                   {loading ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                       <span>{existingSubmission ? 'Updating...' : 'Submitting...'}</span>
+                    </>
+                  ) : !isSubmissionAllowed() ? (
+                    <>
+                      <AlertTriangle className="w-4 h-4" />
+                      <span>Submissions Not Allowed</span>
                     </>
                   ) : (
                     <>

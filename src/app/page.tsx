@@ -22,14 +22,14 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link 
-                href="/dashboard" 
+                href="/events" 
                 className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold flex items-center justify-center gap-2"
               >
                 Browse Events
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link 
-                href="/dashboard/create" 
+                href="/events/create" 
                 className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-4 rounded-lg text-lg font-semibold"
               >
                 Host Your Own

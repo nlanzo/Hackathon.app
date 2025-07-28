@@ -344,6 +344,16 @@ export function EventDetailsClient({ event, eventId }: EventDetailsClientProps) 
                     Resources & APIs (coming soon)
                   </Button>
 
+                    {/* View Submissions Button */}
+                    <Button
+                      href={`/events/${eventId}/submissions`}
+                      variant="outline"
+                      className="w-full flex items-center justify-center gap-2"
+                    >
+                      <Trophy className="w-4 h-4" />
+                      View Submissions
+                    </Button>
+
                   {/* Cancel Event Button - Only show for event creators if not already cancelled */}
                   {isEventCreator && !event.cancelled && (
                     <Button
