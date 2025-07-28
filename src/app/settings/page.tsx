@@ -42,6 +42,22 @@ export default function SettingsPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
           <p className="text-gray-600 mt-2">Manage your account preferences and notifications</p>
+          
+          {/* Work in Progress Notice */}
+          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-start space-x-3">
+              <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-yellow-800 text-xs font-bold">!</span>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-yellow-800 mb-1">Work in Progress</h3>
+                <p className="text-sm text-yellow-700">
+                  These settings are currently being developed and do not function yet. 
+                  The options below are for demonstration purposes only.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-6">
@@ -54,6 +70,11 @@ export default function SettingsPage() {
               </div>
             </CardHeader>
             <CardContent>
+              <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                <p className="text-xs text-gray-600">
+                  ⚠️ This section is under development. Toggle switches are for demonstration only.
+                </p>
+              </div>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -131,6 +152,11 @@ export default function SettingsPage() {
               </div>
             </CardHeader>
             <CardContent>
+              <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                <p className="text-xs text-gray-600">
+                  ⚠️ This section is under development. Privacy settings are for demonstration only.
+                </p>
+              </div>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -174,6 +200,11 @@ export default function SettingsPage() {
               </div>
             </CardHeader>
             <CardContent>
+              <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                <p className="text-xs text-gray-600">
+                  ⚠️ This section is under development. Account management features are for demonstration only.
+                </p>
+              </div>
               <div className="space-y-4">
                 <div>
                   <h3 className="text-sm font-medium text-gray-900 mb-2">Connected Account</h3>
@@ -202,9 +233,13 @@ export default function SettingsPage() {
 
           {/* Save Button */}
           <div className="flex justify-end">
-            <Button variant="primary" className="flex items-center space-x-2">
+            <Button 
+              variant="primary" 
+              className="flex items-center space-x-2 opacity-50 cursor-not-allowed" 
+              disabled
+            >
               <Save className="w-4 h-4" />
-              <span>Save Settings</span>
+              <span>Save Settings (Coming Soon)</span>
             </Button>
           </div>
         </div>

@@ -42,6 +42,9 @@ export interface Event {
   votes_per_user: number;
   start_date: string;
   end_date: string;
+  cancelled: boolean;
+  cancellation_reason?: string;
+  owner_id?: string;
   created_at: string;
   updated_at: string;
   // Computed fields
@@ -93,6 +96,8 @@ export interface EventWithDetails extends Event {
   prizes: Prize[];
   schedule: ScheduleItem[];
   rules_list: string[];
+  cancelled: boolean;
+  cancellation_reason?: string;
 }
 
 export interface Prize {

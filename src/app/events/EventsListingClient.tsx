@@ -79,67 +79,65 @@ export function EventsListingClient({ events }: EventsListingClientProps) {
       {filteredEvents.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredEvents.map((event) => (
-            <Card key={event.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
-                    {event.name}
-                  </h3>
-                  <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                    event.status === 'upcoming' ? 'bg-blue-100 text-blue-800' :
-                    event.status === 'active' ? 'bg-green-100 text-green-800' :
-                    'bg-gray-100 text-gray-800'
-                  }`}>
-                    {event.status}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-600 line-clamp-2">
-                  {event.description}
-                </p>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {/* Event Details */}
-                  <div className="space-y-2">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      <span>{formatDate(event.start_date)} - {formatDate(event.end_date)}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Users className="w-4 h-4 mr-2" />
-                      <span>Max {event.max_team_size} per team</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Trophy className="w-4 h-4 mr-2" />
-                      <span>{event.prize_pool} prize pool</span>
-                    </div>
+            <Link key={event.id} href={`/events/${event.id}`}>
+              <Card className="hover:shadow-lg transition-shadow hover:border-gray-300 cursor-pointer">
+                <CardHeader>
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
+                      {event.name}
+                    </h3>
+                    <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                      event.status === 'upcoming' ? 'bg-blue-100 text-blue-800' :
+                      event.status === 'active' ? 'bg-green-100 text-green-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {event.status}
+                    </span>
                   </div>
-
-                  {/* Registration Deadline */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-xs font-medium text-blue-900">Registration Deadline</p>
-                        <p className="text-sm text-blue-700">{formatDate(event.registration_deadline)}</p>
+                  <p className="text-sm text-gray-600 line-clamp-2">
+                    {event.description}
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {/* Event Details */}
+                    <div className="space-y-2">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Calendar className="w-4 h-4 mr-2" />
+                        <span>{formatDate(event.start_date)} - {formatDate(event.end_date)}</span>
                       </div>
-                      <div className="text-right">
-                        <p className="text-xs font-medium text-blue-900">Time Left</p>
-                        <p className="text-sm text-blue-700">{getTimeUntil(event.registration_deadline)}</p>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Users className="w-4 h-4 mr-2" />
+                        <span>Max {event.max_team_size} per team</span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Trophy className="w-4 h-4 mr-2" />
+                        <span>{event.prize_pool} prize pool</span>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Action Button */}
-                  <Button
-                    href={`/events/${event.id}`}
-                    variant="primary"
-                    className="w-full"
-                  >
-                    View Details
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                    {/* Registration Deadline */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="text-xs font-medium text-blue-900">Registration Deadline</p>
+                          <p className="text-sm text-blue-700">{formatDate(event.registration_deadline)}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs font-medium text-blue-900">Time Left</p>
+                          <p className="text-sm text-blue-700">{getTimeUntil(event.registration_deadline)}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Button */}
+                    <div className="w-full bg-blue-600 text-white text-center py-2 px-4 rounded-md font-medium">
+                      View Details
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       ) : (

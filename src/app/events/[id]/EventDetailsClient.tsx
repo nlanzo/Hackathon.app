@@ -1,11 +1,12 @@
 'use client';
 
 import Link from "next/link";
-import { Calendar, Users, Trophy, Clock, MapPin, DollarSign, Github, ExternalLink, ArrowLeft } from "lucide-react";
+import { Calendar, Users, Trophy, Clock, MapPin, DollarSign, Github, ExternalLink, ArrowLeft, AlertTriangle } from "lucide-react";
 import { EventWithDetails } from "@/lib/types";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
 import { createClient } from "@/lib/supabase";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useEffect, useState } from "react";
@@ -21,6 +22,9 @@ export function EventDetailsClient({ event, eventId }: EventDetailsClientProps) 
   const [myTeam, setMyTeam] = useState<any>(null);
   const [isEventCreator, setIsEventCreator] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState('');
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     if (user?.id) {
@@ -35,10 +39,11 @@ export function EventDetailsClient({ event, eventId }: EventDetailsClientProps) 
     
     try {
       // Check if user is the event creator
-      // For now, we'll check if the user created the event
-      // In a real app, you'd have an owner_id field in the events table
-      // For now, we'll assume any logged-in user can edit (you can add proper ownership later)
-      setIsEventCreator(!!user);
+      if (user?.id && event.owner_id) {
+        setIsEventCreator(user.id === event.owner_id);
+      } else {
+        setIsEventCreator(false);
+      }
 
       // Get user's teams
       const { data: teamMemberships } = await supabase
@@ -101,6 +106,38 @@ export function EventDetailsClient({ event, eventId }: EventDetailsClientProps) 
     if (days > 0) return `${days}d ${hours}h ${minutes}m`;
     if (hours > 0) return `${hours}h ${minutes}m`;
     return `${minutes}m`;
+  };
+
+  const handleCancelEvent = async () => {
+    if (!cancellationReason.trim()) {
+      alert('Please provide a cancellation reason');
+      return;
+    }
+
+    setCancelling(true);
+    try {
+      const supabase = createClient();
+      
+      const { error } = await supabase
+        .from('events')
+        .update({
+          cancelled: true,
+          cancellation_reason: cancellationReason.trim()
+        })
+        .eq('id', eventId);
+
+      if (error) throw error;
+
+      // Close modal and refresh page to show updated status
+      setShowCancelModal(false);
+      setCancellationReason('');
+      window.location.reload();
+    } catch (error) {
+      console.error('Error cancelling event:', error);
+      alert('Failed to cancel event. Please try again.');
+    } finally {
+      setCancelling(false);
+    }
   };
 
   if (loading) {
@@ -203,6 +240,29 @@ export function EventDetailsClient({ event, eventId }: EventDetailsClientProps) 
               </div>
             </Card>
 
+            {/* Cancellation Notice */}
+            {event.cancelled && (
+              <Card className="bg-red-50 border-red-200">
+                <CardContent className="pt-6">
+                  <div className="flex items-start space-x-3">
+                    <AlertTriangle className="w-6 h-6 text-red-600 mt-0.5" />
+                    <div>
+                      <h3 className="text-lg font-semibold text-red-900 mb-2">Event Cancelled</h3>
+                      <p className="text-red-700 mb-3">
+                        This event has been cancelled by the organizer.
+                      </p>
+                      {event.cancellation_reason && (
+                        <div className="bg-white border border-red-200 rounded-lg p-3">
+                          <p className="text-sm font-medium text-red-900 mb-1">Cancellation Reason:</p>
+                          <p className="text-sm text-red-800">{event.cancellation_reason}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Event Details */}
             <Card>
               <CardHeader>
@@ -287,7 +347,7 @@ export function EventDetailsClient({ event, eventId }: EventDetailsClientProps) 
                     </Button>
                   ) : (
                     <Button
-                      href={`/events/${eventId}/team`}
+                      href={`/teams/${myTeam?.id}`}
                       variant="secondary"
                       className="w-full flex items-center justify-center gap-2"
                     >
@@ -297,23 +357,35 @@ export function EventDetailsClient({ event, eventId }: EventDetailsClientProps) 
                   )}
                   
                   <Button
-                    href={`/events/${eventId}/discord`}
                     variant="primary"
-                    className="w-full flex items-center justify-center gap-2"
+                    className="w-full flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
                     style={{ backgroundColor: '#5865F2' }}
+                    disabled
                   >
                     <ExternalLink className="w-4 h-4" />
-                    Join Discord
+                    Join Discord (coming soon)
                   </Button>
                   
                   <Button
-                    href={`/events/${eventId}/resources`}
                     variant="outline"
-                    className="w-full flex items-center justify-center gap-2"
+                    className="w-full flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
+                    disabled
                   >
                     <Github className="w-4 h-4" />
-                    Resources & APIs
+                    Resources & APIs (coming soon)
                   </Button>
+
+                  {/* Cancel Event Button - Only show for event creators if not already cancelled */}
+                  {isEventCreator && !event.cancelled && (
+                    <Button
+                      onClick={() => setShowCancelModal(true)}
+                      variant="outline"
+                      className="w-full flex items-center justify-center gap-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400"
+                    >
+                      <AlertTriangle className="w-4 h-4" />
+                      Cancel Event
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -386,7 +458,7 @@ export function EventDetailsClient({ event, eventId }: EventDetailsClientProps) 
                   )}
                   <div className="space-y-2">
                     <Button
-                      href={`/events/${eventId}/team`}
+                      href={`/teams/${myTeam?.id}`}
                       variant="secondary"
                       className="w-full flex items-center justify-center gap-2"
                     >
@@ -408,6 +480,68 @@ export function EventDetailsClient({ event, eventId }: EventDetailsClientProps) 
           </div>
         </div>
       </div>
+
+      {/* Cancellation Modal */}
+      <Modal
+        isOpen={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        title="Cancel Event"
+        size="md"
+      >
+        <div className="space-y-4">
+          <div className="flex items-start space-x-3">
+            <AlertTriangle className="w-6 h-6 text-red-600 mt-0.5" />
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Are you sure you want to cancel this event?</h3>
+              <p className="text-gray-600 mb-4">
+                This action cannot be undone. All registered participants will be notified of the cancellation.
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Cancellation Reason *
+            </label>
+            <textarea
+              value={cancellationReason}
+              onChange={(e) => setCancellationReason(e.target.value)}
+              rows={4}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+              placeholder="Please provide a reason for cancelling this event..."
+              required
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              This reason will be displayed to all participants.
+            </p>
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-4">
+            <Button
+              onClick={() => setShowCancelModal(false)}
+              variant="outline"
+              disabled={cancelling}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCancelEvent}
+              variant="primary"
+              disabled={cancelling || !cancellationReason.trim()}
+              className="bg-red-600 hover:bg-red-700 border-red-600"
+            >
+              {cancelling ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Cancelling...
+                </>
+              ) : (
+                'Cancel Event'
+              )}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 } 

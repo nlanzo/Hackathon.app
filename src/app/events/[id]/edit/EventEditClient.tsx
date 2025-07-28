@@ -163,6 +163,12 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
       return;
     }
 
+    // Check if user is the event owner
+    if (event.owner_id && user.id !== event.owner_id) {
+      setError('You can only edit events that you created');
+      return;
+    }
+
     if (!validateForm()) {
       return;
     }
@@ -260,7 +266,7 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
                   type="text"
                   value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                   placeholder="Enter event name"
                 />
               </div>
@@ -273,7 +279,7 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                   placeholder="Describe your hackathon event"
                 />
               </div>
@@ -286,7 +292,7 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
                   type="text"
                   value={formData.theme}
                   onChange={(e) => handleInputChange('theme', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                   placeholder="e.g., AI, Sustainability, Healthcare"
                 />
               </div>
@@ -299,7 +305,7 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
                   type="text"
                   value={formData.location}
                   onChange={(e) => handleInputChange('location', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                   placeholder="e.g., Virtual, San Francisco, etc."
                 />
               </div>
@@ -323,7 +329,7 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
                   type="datetime-local"
                   value={formData.start_date}
                   onChange={(e) => handleInputChange('start_date', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 />
               </div>
 
@@ -335,7 +341,7 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
                   type="datetime-local"
                   value={formData.end_date}
                   onChange={(e) => handleInputChange('end_date', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 />
               </div>
 
@@ -347,7 +353,7 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
                   type="datetime-local"
                   value={formData.registration_deadline}
                   onChange={(e) => handleInputChange('registration_deadline', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 />
               </div>
 
@@ -359,7 +365,7 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
                   type="datetime-local"
                   value={formData.submission_deadline}
                   onChange={(e) => handleInputChange('submission_deadline', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 />
               </div>
             </div>
@@ -385,14 +391,14 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
                       type="text"
                       value={item.time}
                       onChange={(e) => updateScheduleItem(index, 'time', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                       placeholder="e.g., Day 1 - 9:00 AM"
                     />
                     <input
                       type="text"
                       value={item.event}
                       onChange={(e) => updateScheduleItem(index, 'event', e.target.value)}
-                      className="flex-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                       placeholder="e.g., Opening Ceremony"
                     />
                     <button
@@ -426,7 +432,7 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
                   max="10"
                   value={formData.max_team_size}
                   onChange={(e) => handleInputChange('max_team_size', parseInt(e.target.value))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 />
                 <p className="text-xs text-gray-500 mt-1">1-10 members per team</p>
               </div>
@@ -441,7 +447,7 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
                   max="1000"
                   value={formData.max_teams}
                   onChange={(e) => handleInputChange('max_teams', parseInt(e.target.value))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 />
                 <p className="text-xs text-gray-500 mt-1">Maximum number of teams</p>
               </div>
@@ -456,7 +462,7 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
                   max="10"
                   value={formData.votes_per_user}
                   onChange={(e) => handleInputChange('votes_per_user', parseInt(e.target.value))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 />
                 <p className="text-xs text-gray-500 mt-1">For judging phase</p>
               </div>
@@ -478,14 +484,14 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
                     type="text"
                     value={prize.place}
                     onChange={(e) => updatePrize(index, 'place', e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                     placeholder="e.g., 1st Place"
                   />
                   <input
                     type="text"
                     value={prize.amount}
                     onChange={(e) => updatePrize(index, 'amount', e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                     placeholder="e.g., $3,000"
                   />
                   <div className="flex space-x-2">
@@ -493,7 +499,7 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
                       type="text"
                       value={prize.description}
                       onChange={(e) => updatePrize(index, 'description', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                       placeholder="e.g., Best overall project"
                     />
                     <button
@@ -528,7 +534,7 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
               value={formData.rules}
               onChange={(e) => handleInputChange('rules', e.target.value)}
               rows={6}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
               placeholder="Enter competition rules and guidelines..."
             />
             <p className="text-xs text-gray-500 mt-2">

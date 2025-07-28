@@ -63,7 +63,7 @@ export function Navigation({ showAuthButtons = true }: NavigationProps) {
                    </Link>
                    <div className="hidden md:flex space-x-6">
                      <Link href="/events" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                       Events
+                       Browse Events
                      </Link>
                      <Link href="/events/create" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                        Create Event

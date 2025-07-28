@@ -3,15 +3,16 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Users, Plus, X, Crown, Mail } from "lucide-react";
-import { EventWithDetails } from "@/lib/types";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { createClient } from "@/lib/supabase";
 
 interface TeamManagementClientProps {
-  event: EventWithDetails;
-  eventId: string;
+  team: any;
+  teamId: string;
+  memberCount: number;
+  mockEvent: any;
 }
 
 interface TeamMember {
@@ -22,16 +23,8 @@ interface TeamMember {
   is_owner: boolean;
 }
 
-interface Team {
-  id: string;
-  name: string;
-  description?: string;
-  owner_id: string;
-}
-
-export function TeamManagementClient({ event, eventId }: TeamManagementClientProps) {
+export function TeamManagementClient({ team, teamId, memberCount, mockEvent }: TeamManagementClientProps) {
   const { user } = useAuth();
-  const [team, setTeam] = useState<Team | null>(null);
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [loading, setLoading] = useState(true);
@@ -40,63 +33,68 @@ export function TeamManagementClient({ event, eventId }: TeamManagementClientPro
 
   useEffect(() => {
     if (user?.id) {
-      fetchTeamData();
+      fetchTeamMembers();
     }
-  }, [user?.id, eventId]);
+  }, [user?.id, teamId]);
 
-  const fetchTeamData = async () => {
+  const fetchTeamMembers = async () => {
     const supabase = createClient();
     
     try {
-      // Get user's team for this event
-      const { data: teamMemberships } = await supabase
+      // Check if user is a member of this team
+      const { data: userMembership, error: membershipError } = await supabase
         .from('team_members')
-        .select('team_id')
-        .eq('user_id', user?.id);
+        .select('user_id')
+        .eq('team_id', teamId)
+        .eq('user_id', user?.id)
+        .single();
 
-      const teamIds = teamMemberships?.map(tm => tm.team_id) || [];
+      if (membershipError || !userMembership) {
+        setError('Access denied: You are not a member of this team');
+        setLoading(false);
+        return;
+      }
 
-      if (teamIds.length > 0) {
-        // Check if any of user's teams are registered for this event
-        const { data: registrations } = await supabase
-          .from('registrations')
-          .select('team_id')
-          .eq('event_id', eventId)
-          .in('team_id', teamIds);
+      // Get team members
+      const { data: memberData, error: memberError } = await supabase
+        .from('team_members')
+        .select('user_id')
+        .eq('team_id', teamId);
 
-        if (registrations && registrations.length > 0) {
-          // Get the team details
-          const { data: teamData } = await supabase
-            .from('teams')
-            .select('*')
-            .eq('id', registrations[0].team_id)
-            .single();
+      if (memberError) throw memberError;
 
-          setTeam(teamData);
+      if (memberData && memberData.length > 0) {
+        const userIds = memberData.map(m => m.user_id);
+        
+        // Fetch user profiles
+        const profilesResponse = await fetch('/api/users/profiles', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userIds }),
+        });
+        
+        const profilesData = await profilesResponse.json();
+        const userProfiles = profilesData.profiles || [];
 
-          // Get team members
-          const { data: memberData } = await supabase
-            .from('team_members')
-            .select(`
-              user_id,
-              teams!inner(name, owner_id)
-            `)
-            .eq('team_id', teamData.id);
-
-          // Transform member data
-          const transformedMembers: TeamMember[] = memberData?.map(member => ({
+        // Transform member data with real user information
+        const transformedMembers: TeamMember[] = memberData.map(member => {
+          const userProfile = userProfiles.find((u: any) => u.id === member.user_id);
+          return {
             id: member.user_id,
-            name: 'Team Member', // We'll need to fetch user details separately
-            email: 'member@example.com', // We'll need to fetch user details separately
-            is_owner: (member.teams as any).owner_id === member.user_id
-          })) || [];
+            name: userProfile?.full_name || userProfile?.discord_username || userProfile?.email || 'Unknown User',
+            email: userProfile?.email || 'No email',
+            avatar: userProfile?.avatar_url,
+            is_owner: team.owner_id === member.user_id
+          };
+        });
 
-          setMembers(transformedMembers);
-        }
+        setMembers(transformedMembers);
       }
     } catch (error) {
-      console.error('Error fetching team data:', error);
-      setError('Failed to load team data');
+      console.error('Error fetching team members:', error);
+      setError('Failed to load team members');
     } finally {
       setLoading(false);
     }
@@ -112,8 +110,8 @@ export function TeamManagementClient({ event, eventId }: TeamManagementClientPro
     }
 
     // Check team size limit
-    if (members.length >= event.max_team_size) {
-      setError(`Team size cannot exceed ${event.max_team_size} members`);
+    if (members.length >= mockEvent.max_team_size) {
+      setError(`Team size cannot exceed ${mockEvent.max_team_size} members`);
       return;
     }
 
@@ -130,15 +128,6 @@ export function TeamManagementClient({ event, eventId }: TeamManagementClientPro
     setSuccess('Member removed from team');
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -150,17 +139,14 @@ export function TeamManagementClient({ event, eventId }: TeamManagementClientPro
     );
   }
 
-  if (!team) {
+  if (error && error.includes('Access denied')) {
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">No Team Found</h2>
-          <p className="text-gray-600 mb-4">You're not registered for this event with a team.</p>
-          <Link 
-            href={`/events/${eventId}/register`}
-            className="inline-flex items-center text-blue-600 hover:text-blue-800"
-          >
-            Register for this event
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
+          <p className="text-gray-600 mb-4">You are not a member of this team.</p>
+          <Link href="/dashboard" className="text-blue-600 hover:text-blue-800">
+            ← Back to Dashboard
           </Link>
         </div>
       </div>
@@ -172,15 +158,15 @@ export function TeamManagementClient({ event, eventId }: TeamManagementClientPro
       {/* Header */}
       <div className="mb-8">
         <Link 
-          href={`/events/${eventId}`}
+          href="/dashboard"
           className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Event
+          Back to Dashboard
         </Link>
         <h1 className="text-3xl font-bold text-gray-900">Team Management</h1>
         <p className="text-gray-600 mt-2">
-          Manage your team for {event.name}
+          Manage your team: {team.name}
         </p>
       </div>
 
@@ -225,12 +211,11 @@ export function TeamManagementClient({ event, eventId }: TeamManagementClientPro
                 )}
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h3 className="text-sm font-medium text-blue-900 mb-2">Event Details</h3>
+                  <h3 className="text-sm font-medium text-blue-900 mb-2">Team Details</h3>
                   <div className="text-sm text-blue-700 space-y-1">
-                    <p>• Event: {event.name}</p>
-                    <p>• Start Date: {formatDate(event.start_date)}</p>
-                    <p>• Team Size: {members.length}/{event.max_team_size} members</p>
-                    <p>• Registration Deadline: {formatDate(event.registration_deadline)}</p>
+                    <p>• Team Size: {members.length}/{mockEvent.max_team_size} members</p>
+                    <p>• Created: {new Date(team.created_at).toLocaleDateString()}</p>
+                    <p>• Status: Active</p>
                   </div>
                 </div>
               </div>
@@ -244,7 +229,7 @@ export function TeamManagementClient({ event, eventId }: TeamManagementClientPro
             <CardHeader>
               <h3 className="text-lg font-semibold text-gray-900">Team Members</h3>
               <p className="text-sm text-gray-600">
-                {members.length}/{event.max_team_size} members
+                {members.length}/{mockEvent.max_team_size} members
               </p>
             </CardHeader>
             <CardContent>
@@ -252,9 +237,17 @@ export function TeamManagementClient({ event, eventId }: TeamManagementClientPro
                 {members.map((member) => (
                   <div key={member.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium">
-                        {member.name.charAt(0).toUpperCase()}
-                      </div>
+                      {member.avatar ? (
+                        <img 
+                          src={member.avatar} 
+                          alt={member.name}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium">
+                          {member.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
                       <div>
                         <div className="flex items-center space-x-2">
                           <p className="text-sm font-medium text-gray-900">{member.name}</p>
@@ -262,7 +255,9 @@ export function TeamManagementClient({ event, eventId }: TeamManagementClientPro
                             <Crown className="w-4 h-4 text-yellow-500" />
                           )}
                         </div>
-                        <p className="text-xs text-gray-500">{member.email}</p>
+                        <p className="text-xs text-gray-500">
+                          {member.email.includes('@') ? member.email : `@${member.email}`}
+                        </p>
                       </div>
                     </div>
                     {!member.is_owner && (
@@ -278,7 +273,7 @@ export function TeamManagementClient({ event, eventId }: TeamManagementClientPro
               </div>
 
               {/* Add New Member */}
-              {members.length < event.max_team_size && (
+              {members.length < mockEvent.max_team_size && (
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <h4 className="text-sm font-medium text-gray-700 mb-3">Invite New Member</h4>
                   <div className="flex space-x-2">
@@ -316,18 +311,18 @@ export function TeamManagementClient({ event, eventId }: TeamManagementClientPro
             <CardContent>
               <div className="space-y-3">
                 <Button
-                  href={`/events/${eventId}/submit`}
+                  href="/dashboard"
                   variant="primary"
                   className="w-full justify-start"
                 >
-                  Submit Project
+                  Back to Dashboard
                 </Button>
                 <Button
-                  href={`/events/${eventId}`}
+                  href="/events"
                   variant="outline"
                   className="w-full justify-start"
                 >
-                  View Event Details
+                  Browse Events
                 </Button>
               </div>
             </CardContent>
