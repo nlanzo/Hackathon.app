@@ -16,6 +16,14 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Hackathon.app - Host and Join Amazing Hackathon Events",
   description: "Create, manage, and participate in hackathon events with seamless team collaboration, project submissions, and real-time updates. Built for developers, by developers.",
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/icon.svg',
+  },
 };
 
 export default function RootLayout({
