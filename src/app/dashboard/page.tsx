@@ -140,11 +140,21 @@ export default function Dashboard() {
 
       setHostedEvents(transformedHostedEvents);
 
+      // Fetch submissions for user's teams
+      const { data: submissions, error: submissionsError } = await supabase
+        .from('submissions')
+        .select('*')
+        .in('team_id', teamIds);
+
+      if (submissionsError) {
+        console.error('Error fetching submissions:', submissionsError);
+      }
+
       // Calculate stats
       setUserStats({
         active_events: transformedUserEvents.length,
         my_teams: transformedTeams.length,
-        submissions: 0, // Will be calculated separately
+        submissions: submissions?.length || 0,
         upcoming_events: transformedUserEvents.length,
         hosted_events: transformedHostedEvents.length
       });
