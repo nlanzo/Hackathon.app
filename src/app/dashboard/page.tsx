@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Calendar, Users, Trophy, Clock, Plus } from "lucide-react";
 import { UserStats, UserEvent, TeamWithMembers } from "@/lib/types";
 import { Navigation } from "@/components/layout/Navigation";
@@ -29,19 +29,9 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const hasFetched = useRef(false);
 
-  useEffect(() => {
-    if (user?.id && !hasFetched.current) {
-      hasFetched.current = true;
-      fetchDashboardData();
-    }
-    
-    // Reset the flag when user changes
-    return () => {
-      hasFetched.current = false;
-    };
-  }, [user?.id]);
 
-  async function fetchDashboardData() {
+
+  const fetchDashboardData = useCallback(async () => {
     const supabase = createClient();
     
     try {
@@ -180,7 +170,19 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (user?.id && !hasFetched.current) {
+      hasFetched.current = true;
+      fetchDashboardData();
+    }
+    
+    // Reset the flag when user changes
+    return () => {
+      hasFetched.current = false;
+    };
+  }, [user?.id, fetchDashboardData]);
 
   if (loading) {
     return (
