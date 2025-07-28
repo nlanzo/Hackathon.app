@@ -179,7 +179,7 @@ export function EventRegistrationClient({ event, eventId }: EventRegistrationCli
         </Link>
         <h1 className="text-3xl font-bold text-gray-900">Register for {event.name}</h1>
         <p className="text-gray-600 mt-2">
-          Registration deadline: {formatDate(event.registration_deadline)}
+          Register up to the start of the event
         </p>
       </div>
 
@@ -271,7 +271,8 @@ export function EventRegistrationClient({ event, eventId }: EventRegistrationCli
                 <div className="text-sm text-blue-700 space-y-1">
                   <p>• Maximum team size: {event.max_team_size} members</p>
                   <p>• Event theme: {event.theme}</p>
-                  <p>• Prize pool: {event.prize_pool}</p>
+                  <p>• Event dates: {formatDate(event.start_date)} - {formatDate(event.end_date)}</p>
+                  <p>• Prize: {event.prize || 'Learning Experience & Recognition'}</p>
                 </div>
               </div>
             </div>
@@ -403,8 +404,8 @@ export function EventRegistrationClient({ event, eventId }: EventRegistrationCli
                     <span className="font-medium">{formatDate(event.end_date)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Prize Pool:</span>
-                    <span className="font-medium">{event.prize_pool}</span>
+                    <span>Prize:</span>
+                    <span className="font-medium">{event.prize || 'Learning Experience & Recognition'}</span>
                   </div>
                 </div>
               </div>

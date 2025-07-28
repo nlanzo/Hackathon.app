@@ -112,21 +112,7 @@ export function EventsListingClient({ events }: EventsListingClientProps) {
                       </div>
                       <div className="flex items-center text-sm text-gray-600">
                         <Trophy className="w-4 h-4 mr-2" />
-                        <span>{event.prize_pool} prize pool</span>
-                      </div>
-                    </div>
-
-                    {/* Registration Deadline */}
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="text-xs font-medium text-blue-900">Registration Deadline</p>
-                          <p className="text-sm text-blue-700">{formatDate(event.registration_deadline)}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-xs font-medium text-blue-900">Time Left</p>
-                          <p className="text-sm text-blue-700">{getTimeUntil(event.registration_deadline)}</p>
-                        </div>
+                        <span>{event.prize || 'Learning Experience & Recognition'}</span>
                       </div>
                     </div>
 

@@ -9,17 +9,6 @@ import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { createClient } from "@/lib/supabase";
 
-interface Prize {
-  place: string;
-  amount: string;
-  description: string;
-}
-
-interface ScheduleItem {
-  time: string;
-  event: string;
-}
-
 export function EventCreationClient() {
   const router = useRouter();
   const { user } = useAuth();
@@ -36,59 +25,17 @@ export function EventCreationClient() {
     location: 'Virtual (Online)',
     start_date: '',
     end_date: '',
-    registration_deadline: '',
-    submission_deadline: '',
     max_teams: 50,
     max_team_size: 3,
     votes_per_user: 3,
-    prize_pool: '$5,000'
+    prize: 'Learning Experience & Recognition'
   });
-
-  const [prizes, setPrizes] = useState<Prize[]>([
-    { place: '1st Place', amount: '$3,000', description: 'Best overall project' },
-    { place: '2nd Place', amount: '$1,500', description: 'Second best project' },
-    { place: '3rd Place', amount: '$500', description: 'Third best project' }
-  ]);
-
-  const [schedule, setSchedule] = useState<ScheduleItem[]>([
-    { time: 'Day 1 - 9:00 AM', event: 'Opening Ceremony' },
-    { time: 'Day 1 - 10:00 AM', event: 'Hacking Begins' },
-    { time: 'Day 3 - 4:00 PM', event: 'Submission Deadline' }
-  ]);
 
   const handleInputChange = (field: string, value: string | number) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
-  };
-
-  const addPrize = () => {
-    setPrizes([...prizes, { place: '', amount: '', description: '' }]);
-  };
-
-  const updatePrize = (index: number, field: keyof Prize, value: string) => {
-    const updatedPrizes = [...prizes];
-    updatedPrizes[index] = { ...updatedPrizes[index], [field]: value };
-    setPrizes(updatedPrizes);
-  };
-
-  const removePrize = (index: number) => {
-    setPrizes(prizes.filter((_, i) => i !== index));
-  };
-
-  const addScheduleItem = () => {
-    setSchedule([...schedule, { time: '', event: '' }]);
-  };
-
-  const updateScheduleItem = (index: number, field: keyof ScheduleItem, value: string) => {
-    const updatedSchedule = [...schedule];
-    updatedSchedule[index] = { ...updatedSchedule[index], [field]: value };
-    setSchedule(updatedSchedule);
-  };
-
-  const removeScheduleItem = (index: number) => {
-    setSchedule(schedule.filter((_, i) => i !== index));
   };
 
   const validateForm = () => {
@@ -108,24 +55,8 @@ export function EventCreationClient() {
       setError('End date is required');
       return false;
     }
-    if (!formData.registration_deadline) {
-      setError('Registration deadline is required');
-      return false;
-    }
-    if (!formData.submission_deadline) {
-      setError('Submission deadline is required');
-      return false;
-    }
     if (new Date(formData.start_date) >= new Date(formData.end_date)) {
       setError('End date must be after start date');
-      return false;
-    }
-    if (new Date(formData.registration_deadline) >= new Date(formData.start_date)) {
-      setError('Registration deadline must be before start date');
-      return false;
-    }
-    if (new Date(formData.submission_deadline) > new Date(formData.end_date)) {
-      setError('Submission deadline cannot be after end date');
       return false;
     }
     if (formData.max_team_size < 1 || formData.max_team_size > 10) {
@@ -164,22 +95,27 @@ export function EventCreationClient() {
       const supabase = createClient();
 
       // Create event
+      const eventData = {
+        name: formData.name,
+        description: formData.description,
+        rules: formData.rules,
+        votes_per_user: formData.votes_per_user,
+        start_date: formData.start_date,
+        end_date: formData.end_date,
+        prize: formData.prize,
+        owner_id: user.id
+      };
+      
       const { data: event, error: eventError } = await supabase
         .from('events')
-        .insert({
-          name: formData.name,
-          description: formData.description,
-          rules: formData.rules,
-          votes_per_user: formData.votes_per_user,
-          start_date: formData.start_date,
-          end_date: formData.end_date,
-          owner_id: user.id
-        })
+        .insert(eventData)
         .select()
         .single();
 
-      if (eventError) throw eventError;
-
+      if (eventError) {
+        throw eventError;
+      }
+      
       setSuccess('Event created successfully!');
       
       // Redirect to the new event page after a short delay
@@ -299,11 +235,11 @@ export function EventCreationClient() {
           </CardContent>
         </Card>
 
-        {/* Dates and Schedule */}
+        {/* Dates */}
         <Card>
           <CardHeader>
-            <h2 className="text-xl font-semibold text-gray-900">Dates & Schedule</h2>
-            <p className="text-gray-600">Set important dates and timeline</p>
+            <h2 className="text-xl font-semibold text-gray-900">Event Dates</h2>
+            <p className="text-gray-600">Set start and end dates for your hackathon</p>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -329,72 +265,6 @@ export function EventCreationClient() {
                   onChange={(e) => handleInputChange('end_date', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Registration Deadline *
-                </label>
-                <input
-                  type="datetime-local"
-                  value={formData.registration_deadline}
-                  onChange={(e) => handleInputChange('registration_deadline', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Submission Deadline *
-                </label>
-                <input
-                  type="datetime-local"
-                  value={formData.submission_deadline}
-                  onChange={(e) => handleInputChange('submission_deadline', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                />
-              </div>
-            </div>
-
-            {/* Schedule Items */}
-            <div className="mt-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium text-gray-900">Event Schedule</h3>
-                <Button
-                  onClick={addScheduleItem}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center space-x-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Add Item</span>
-                </Button>
-              </div>
-              <div className="space-y-3">
-                {schedule.map((item, index) => (
-                  <div key={index} className="flex space-x-3">
-                    <input
-                      type="text"
-                      value={item.time}
-                      onChange={(e) => updateScheduleItem(index, 'time', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                      placeholder="e.g., Day 1 - 9:00 AM"
-                    />
-                    <input
-                      type="text"
-                      value={item.event}
-                      onChange={(e) => updateScheduleItem(index, 'event', e.target.value)}
-                      className="flex-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                      placeholder="e.g., Opening Ceremony"
-                    />
-                    <button
-                      onClick={() => removeScheduleItem(index)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
               </div>
             </div>
           </CardContent>
@@ -456,55 +326,29 @@ export function EventCreationClient() {
           </CardContent>
         </Card>
 
-        {/* Prizes */}
+        {/* Prize */}
         <Card>
           <CardHeader>
-            <h2 className="text-xl font-semibold text-gray-900">Prizes</h2>
-            <p className="text-gray-600">Set up prizes for winners</p>
+            <h2 className="text-xl font-semibold text-gray-900">Prize</h2>
+            <p className="text-gray-600">What will participants win? Focus on learning and recognition rather than cash prizes</p>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {prizes.map((prize, index) => (
-                <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <input
-                    type="text"
-                    value={prize.place}
-                    onChange={(e) => updatePrize(index, 'place', e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                    placeholder="e.g., 1st Place"
-                  />
-                  <input
-                    type="text"
-                    value={prize.amount}
-                    onChange={(e) => updatePrize(index, 'amount', e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                    placeholder="e.g., $3,000"
-                  />
-                  <div className="flex space-x-2">
-                    <input
-                      type="text"
-                      value={prize.description}
-                      onChange={(e) => updatePrize(index, 'description', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                      placeholder="e.g., Best overall project"
-                    />
-                    <button
-                      onClick={() => removePrize(index)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-              <Button
-                onClick={addPrize}
-                variant="outline"
-                className="flex items-center space-x-2"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Prize</span>
-              </Button>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Prize Description
+                </label>
+                <textarea
+                  value={formData.prize}
+                  onChange={(e) => handleInputChange('prize', e.target.value)}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                  placeholder="e.g., Learning Experience & Recognition, Mentorship Opportunities, Certificate of Achievement, Featured on our Blog, etc."
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  Examples: "Learning Experience & Recognition", "Mentorship with Industry Experts", "Certificate of Achievement", "Featured Project Showcase"
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>

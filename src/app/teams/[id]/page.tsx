@@ -40,7 +40,6 @@ export default async function TeamPage({ params }: TeamPageProps) {
       id: 'mock-event',
       name: 'Team Management',
       max_team_size: 3,
-      registration_deadline: new Date().toISOString(),
       start_date: new Date().toISOString(),
       end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
     };

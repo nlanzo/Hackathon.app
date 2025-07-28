@@ -31,21 +31,8 @@ export default async function EventRegistrationPage({ params }: EventRegistratio
       max_teams: 50,
       max_team_size: 3,
       theme: "General",
-      prize_pool: "$5,000",
       status: "upcoming",
-      registration_deadline: eventData.start_date,
-      submission_deadline: eventData.end_date,
       location: "Virtual (Online)",
-      prizes: [
-        { place: "1st Place", amount: "$3,000", description: "Best overall project" },
-        { place: "2nd Place", amount: "$1,500", description: "Second best project" },
-        { place: "3rd Place", amount: "$500", description: "Third best project" }
-      ],
-      schedule: [
-        { time: "Day 1 - 9:00 AM", event: "Opening Ceremony" },
-        { time: "Day 1 - 10:00 AM", event: "Hacking Begins" },
-        { time: "Day 3 - 4:00 PM", event: "Submission Deadline" }
-      ],
       rules_list: eventData.rules ? eventData.rules.split('\n') : []
     };
 

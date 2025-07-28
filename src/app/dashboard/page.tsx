@@ -1,28 +1,30 @@
 'use client';
 
-import Link from "next/link";
+import { useEffect, useState, useRef } from "react";
 import { Calendar, Users, Trophy, Clock, Plus } from "lucide-react";
-import { EventWithDetails, TeamWithMembers, UserEvent, UserStats } from "@/lib/types";
+import { UserStats, UserEvent, TeamWithMembers } from "@/lib/types";
 import { Navigation } from "@/components/layout/Navigation";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatsCard } from "@/components/dashboard/StatsCard";
-
+import { EventsSection } from "@/components/dashboard/EventsSection";
 import { TeamsSection } from "@/components/dashboard/TeamsSection";
+import { DashboardEventCard } from "@/components/dashboard/EventCard";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { useAuth } from "@/components/providers/AuthProvider";
 import { createClient } from "@/lib/supabase";
-import { useEffect, useState, useRef } from "react";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [myTeams, setMyTeams] = useState<TeamWithMembers[]>([]);
   const [myEvents, setMyEvents] = useState<UserEvent[]>([]);
+  const [hostedEvents, setHostedEvents] = useState<UserEvent[]>([]);
   const [userStats, setUserStats] = useState<UserStats>({
     active_events: 0,
     my_teams: 0,
     submissions: 0,
-    upcoming_events: 0
+    upcoming_events: 0,
+    hosted_events: 0
   });
   const [loading, setLoading] = useState(true);
   const hasFetched = useRef(false);
@@ -116,12 +118,35 @@ export default function Dashboard() {
 
       setMyEvents(transformedUserEvents);
 
+      // Debug: First let's see all events in the database
+      const { data: allEvents, error: allEventsError } = await supabase
+        .from('events')
+        .select('*');
+      
+      // Fetch events the user is hosting (owner)
+      const { data: hostedEventsData, error: hostedEventsError } = await supabase
+        .from('events')
+        .select('*')
+        .eq('owner_id', user?.id);
+
+      if (hostedEventsError) throw hostedEventsError;
+      
+      const transformedHostedEvents: UserEvent[] = hostedEventsData?.map(event => ({
+        ...event,
+        role: "organizer",
+        user_status: "active",
+        progress: 0
+      })) || [];
+
+      setHostedEvents(transformedHostedEvents);
+
       // Calculate stats
       setUserStats({
         active_events: transformedUserEvents.length,
         my_teams: transformedTeams.length,
         submissions: 0, // Will be calculated separately
-        upcoming_events: transformedUserEvents.length
+        upcoming_events: transformedUserEvents.length,
+        hosted_events: transformedHostedEvents.length
       });
 
     } catch (error) {
@@ -144,7 +169,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navigation showAuthButtons={false} />
+      <Navigation />
       <PageHeader 
         title="Dashboard"
         action={{
@@ -157,13 +182,21 @@ export default function Dashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <StatsCard
             title="My Events"
             value={userStats.active_events}
             icon={<Calendar className="w-6 h-6" />}
             iconBgColor="bg-blue-100"
             iconColor="text-blue-600"
+          />
+          
+          <StatsCard
+            title="Hosted Events"
+            value={userStats.hosted_events}
+            icon={<Calendar className="w-6 h-6" />}
+            iconBgColor="bg-indigo-100"
+            iconColor="text-indigo-600"
           />
           
           <StatsCard
@@ -193,56 +226,63 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* My Events - Now the main section */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-8">
+            {/* Events I'm Registered For */}
             <Card>
               <CardHeader>
                 <h2 className="text-xl font-semibold text-gray-900">My Events</h2>
-                <p className="text-gray-600">Events you're registered for</p>
+                <p className="text-gray-600">Events you&apos;re registered for</p>
               </CardHeader>
               <CardContent>
                 {myEvents.length > 0 ? (
                   <div className="space-y-6">
                     {myEvents.map((event) => (
-                      <Link 
-                        key={event.id} 
-                        href={`/events/${event.id}`}
-                        className="block border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow hover:border-gray-300"
-                      >
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">{event.name}</h3>
-                            <p className="text-sm text-gray-600 mb-2">Role: {event.role}</p>
-                            <p className="text-sm text-gray-600">
-                              {new Date(event.start_date).toLocaleDateString()} - {new Date(event.end_date).toLocaleDateString()}
-                            </p>
-                          </div>
-                          <span className="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full">
-                            {event.user_status}
-                          </span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-3 mb-3">
-                          <div 
-                            className="bg-blue-600 h-3 rounded-full transition-all duration-300" 
-                            style={{ width: `${event.progress}%` }}
-                          ></div>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <p className="text-sm text-gray-500">Progress: {event.progress}%</p>
-                          <span className="text-blue-600 text-sm font-medium">
-                            View Event →
-                          </span>
-                        </div>
-                      </Link>
+                      <DashboardEventCard
+                        key={event.id}
+                        event={event}
+                        variant="registered"
+                      />
                     ))}
                   </div>
                 ) : (
                   <EmptyState
                     icon={<Calendar className="w-16 h-16" />}
                     title="No Events Yet"
-                    description="You haven't registered for any events yet. Browse available events to get started!"
+                    description="You haven&apos;t registered for any events yet. Browse available events to get started!"
                     action={{
                       label: "Browse Events",
                       href: "/events"
+                    }}
+                  />
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Events I'm Hosting */}
+            <Card>
+              <CardHeader>
+                <h2 className="text-xl font-semibold text-gray-900">Events I&apos;m Hosting</h2>
+                <p className="text-gray-600">Events you created and are managing</p>
+              </CardHeader>
+              <CardContent>
+                {hostedEvents.length > 0 ? (
+                  <div className="space-y-6">
+                    {hostedEvents.map((event) => (
+                      <DashboardEventCard
+                        key={event.id}
+                        event={event}
+                        variant="hosted"
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState
+                    icon={<Calendar className="w-16 h-16" />}
+                    title="No Hosted Events"
+                    description="You haven&apos;t created any events yet. Create your first event to get started!"
+                    action={{
+                      label: "Create Event",
+                      href: "/events/create"
                     }}
                   />
                 )}

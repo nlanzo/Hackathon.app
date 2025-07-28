@@ -45,6 +45,7 @@ export interface Event {
   cancelled: boolean;
   cancellation_reason?: string;
   owner_id?: string;
+  prize?: string;
   created_at: string;
   updated_at: string;
   // Computed fields
@@ -52,7 +53,6 @@ export interface Event {
   max_teams?: number;
   max_team_size?: number;
   theme?: string;
-  prize_pool?: string;
   status?: 'upcoming' | 'active' | 'completed';
 }
 
@@ -88,27 +88,11 @@ export interface EventWithDetails extends Event {
   max_teams: number;
   max_team_size: number;
   theme: string;
-  prize_pool: string;
   status: 'upcoming' | 'active' | 'completed';
-  registration_deadline: string;
-  submission_deadline: string;
   location: string;
-  prizes: Prize[];
-  schedule: ScheduleItem[];
   rules_list: string[];
   cancelled: boolean;
   cancellation_reason?: string;
-}
-
-export interface Prize {
-  place: string;
-  amount: string;
-  description: string;
-}
-
-export interface ScheduleItem {
-  time: string;
-  event: string;
 }
 
 export interface UserStats {
@@ -116,6 +100,7 @@ export interface UserStats {
   my_teams: number;
   submissions: number;
   upcoming_events: number;
+  hosted_events: number;
 }
 
 export interface TeamWithMembers extends Team {

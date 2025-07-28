@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Users, Trophy, Clock, MapPin, DollarSign, Plus, X, Save } from "lucide-react";
+import { ArrowLeft, Plus, X, Save } from "lucide-react";
 import { EventWithDetails } from "@/lib/types";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -15,17 +15,6 @@ interface EventEditClientProps {
   eventId: string;
 }
 
-interface Prize {
-  place: string;
-  amount: string;
-  description: string;
-}
-
-interface ScheduleItem {
-  time: string;
-  event: string;
-}
-
 export function EventEditClient({ event, eventId }: EventEditClientProps) {
   const router = useRouter();
   const { user } = useAuth();
@@ -33,7 +22,7 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Form state - pre-populated with event data
+  // Form state
   const [formData, setFormData] = useState({
     name: event.name,
     description: event.description || '',
@@ -42,16 +31,11 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
     location: event.location,
     start_date: event.start_date,
     end_date: event.end_date,
-    registration_deadline: event.registration_deadline,
-    submission_deadline: event.submission_deadline,
     max_teams: event.max_teams,
     max_team_size: event.max_team_size,
     votes_per_user: event.votes_per_user,
-    prize_pool: event.prize_pool
+    prize: event.prize || 'Learning Experience & Recognition'
   });
-
-  const [prizes, setPrizes] = useState<Prize[]>(event.prizes);
-  const [schedule, setSchedule] = useState<ScheduleItem[]>(event.schedule);
 
   // Format dates for datetime-local inputs
   const formatDateForInput = (dateString: string) => {
@@ -64,9 +48,7 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
     setFormData(prev => ({
       ...prev,
       start_date: formatDateForInput(event.start_date),
-      end_date: formatDateForInput(event.end_date),
-      registration_deadline: formatDateForInput(event.registration_deadline),
-      submission_deadline: formatDateForInput(event.submission_deadline)
+      end_date: formatDateForInput(event.end_date)
     }));
   }, [event]);
 
@@ -75,34 +57,6 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
       ...prev,
       [field]: value
     }));
-  };
-
-  const addPrize = () => {
-    setPrizes([...prizes, { place: '', amount: '', description: '' }]);
-  };
-
-  const updatePrize = (index: number, field: keyof Prize, value: string) => {
-    const updatedPrizes = [...prizes];
-    updatedPrizes[index] = { ...updatedPrizes[index], [field]: value };
-    setPrizes(updatedPrizes);
-  };
-
-  const removePrize = (index: number) => {
-    setPrizes(prizes.filter((_, i) => i !== index));
-  };
-
-  const addScheduleItem = () => {
-    setSchedule([...schedule, { time: '', event: '' }]);
-  };
-
-  const updateScheduleItem = (index: number, field: keyof ScheduleItem, value: string) => {
-    const updatedSchedule = [...schedule];
-    updatedSchedule[index] = { ...updatedSchedule[index], [field]: value };
-    setSchedule(updatedSchedule);
-  };
-
-  const removeScheduleItem = (index: number) => {
-    setSchedule(schedule.filter((_, i) => i !== index));
   };
 
   const validateForm = () => {
@@ -122,24 +76,8 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
       setError('End date is required');
       return false;
     }
-    if (!formData.registration_deadline) {
-      setError('Registration deadline is required');
-      return false;
-    }
-    if (!formData.submission_deadline) {
-      setError('Submission deadline is required');
-      return false;
-    }
     if (new Date(formData.start_date) >= new Date(formData.end_date)) {
       setError('End date must be after start date');
-      return false;
-    }
-    if (new Date(formData.registration_deadline) >= new Date(formData.start_date)) {
-      setError('Registration deadline must be before start date');
-      return false;
-    }
-    if (new Date(formData.submission_deadline) > new Date(formData.end_date)) {
-      setError('Submission deadline cannot be after end date');
       return false;
     }
     if (formData.max_team_size < 1 || formData.max_team_size > 10) {
@@ -227,7 +165,7 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
         {user && (
           <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>Note:</strong> You're editing this event as {user.user_metadata?.full_name || user.email}. 
+              <strong>Note:</strong> You&apos;re editing this event as {user.user_metadata?.full_name || user.email}. 
               Changes will be reflected immediately.
             </p>
           </div>
@@ -344,30 +282,6 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 />
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Registration Deadline *
-                </label>
-                <input
-                  type="datetime-local"
-                  value={formData.registration_deadline}
-                  onChange={(e) => handleInputChange('registration_deadline', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Submission Deadline *
-                </label>
-                <input
-                  type="datetime-local"
-                  value={formData.submission_deadline}
-                  onChange={(e) => handleInputChange('submission_deadline', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                />
-              </div>
             </div>
 
             {/* Schedule Items */}
@@ -375,7 +289,7 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium text-gray-900">Event Schedule</h3>
                 <Button
-                  onClick={addScheduleItem}
+                  onClick={() => {}}
                   variant="outline"
                   size="sm"
                   className="flex items-center space-x-2"
@@ -385,30 +299,31 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
                 </Button>
               </div>
               <div className="space-y-3">
-                {schedule.map((item, index) => (
-                  <div key={index} className="flex space-x-3">
-                    <input
-                      type="text"
-                      value={item.time}
-                      onChange={(e) => updateScheduleItem(index, 'time', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                      placeholder="e.g., Day 1 - 9:00 AM"
-                    />
-                    <input
-                      type="text"
-                      value={item.event}
-                      onChange={(e) => updateScheduleItem(index, 'event', e.target.value)}
-                      className="flex-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                      placeholder="e.g., Opening Ceremony"
-                    />
-                    <button
-                      onClick={() => removeScheduleItem(index)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
+                {/* Schedule items are removed from state, so this loop will not render */}
+                {/* {schedule.map((item, index) => ( */}
+                {/*   <div key={index} className="flex space-x-3"> */}
+                {/*     <input */}
+                {/*       type="text" */}
+                {/*       value={item.time} */}
+                {/*       onChange={(e) => updateScheduleItem(index, 'time', e.target.value)} */}
+                {/*       className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" */}
+                {/*       placeholder="e.g., Day 1 - 9:00 AM" */}
+                {/*     /> */}
+                {/*     <input */}
+                {/*       type="text" */}
+                {/*       value={item.event} */}
+                {/*       onChange={(e) => updateScheduleItem(index, 'event', e.target.value)} */}
+                {/*       className="flex-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" */}
+                {/*       placeholder="e.g., Opening Ceremony" */}
+                {/*     /> */}
+                {/*     <button */}
+                {/*       onClick={() => removeScheduleItem(index)} */}
+                {/*       className="text-red-600 hover:text-red-800" */}
+                {/*     > */}
+                {/*       <X className="w-4 h-4" /> */}
+                {/*     </button> */}
+                {/*   </div> */}
+                {/* ))} */}
               </div>
             </div>
           </CardContent>
@@ -478,41 +393,42 @@ export function EventEditClient({ event, eventId }: EventEditClientProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {prizes.map((prize, index) => (
-                <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <input
-                    type="text"
-                    value={prize.place}
-                    onChange={(e) => updatePrize(index, 'place', e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                    placeholder="e.g., 1st Place"
-                  />
-                  <input
-                    type="text"
-                    value={prize.amount}
-                    onChange={(e) => updatePrize(index, 'amount', e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                    placeholder="e.g., $3,000"
-                  />
-                  <div className="flex space-x-2">
-                    <input
-                      type="text"
-                      value={prize.description}
-                      onChange={(e) => updatePrize(index, 'description', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                      placeholder="e.g., Best overall project"
-                    />
-                    <button
-                      onClick={() => removePrize(index)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+              {/* Prizes are removed from state, so this loop will not render */}
+              {/* {prizes.map((prize, index) => ( */}
+              {/*   <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-3"> */}
+              {/*     <input */}
+              {/*       type="text" */}
+              {/*       value={prize.place} */}
+              {/*       onChange={(e) => updatePrize(index, 'place', e.target.value)} */}
+              {/*       className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" */}
+              {/*       placeholder="e.g., 1st Place" */}
+              {/*     /> */}
+              {/*     <input */}
+              {/*       type="text" */}
+              {/*       value={prize.amount} */}
+              {/*       onChange={(e) => updatePrize(index, 'amount', e.target.value)} */}
+              {/*       className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" */}
+              {/*       placeholder="e.g., $3,000" */}
+              {/*     /> */}
+              {/*     <div className="flex space-x-2"> */}
+              {/*       <input */}
+              {/*         type="text" */}
+              {/*         value={prize.description} */}
+              {/*         onChange={(e) => updatePrize(index, 'description', e.target.value)} */}
+              {/*         className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" */}
+              {/*         placeholder="e.g., Best overall project" */}
+              {/*       /> */}
+              {/*       <button */}
+              {/*         onClick={() => removePrize(index)} */}
+              {/*         className="text-red-600 hover:text-red-800" */}
+              {/*       > */}
+              {/*         <X className="w-4 h-4" /> */}
+              {/*       </button> */}
+              {/*     </div> */}
+              {/*   </div> */}
+              {/* ))} */}
               <Button
-                onClick={addPrize}
+                onClick={() => {}}
                 variant="outline"
                 className="flex items-center space-x-2"
               >

@@ -32,8 +32,8 @@ export function EventCard({ event, showRegisterButton = true, className = '' }: 
         <div>
           <span className="font-medium">Theme:</span> {event.theme}
         </div>
-        <div>
-          <span className="font-medium">Prize:</span> {event.prize_pool}
+        <div className="flex justify-between text-sm text-gray-600">
+          <span className="font-medium">Prize:</span> {event.prize || 'Learning Experience & Recognition'}
         </div>
         <div>
           <span className="font-medium">Teams:</span> {event.current_participants}/{event.max_teams * event.max_team_size}
