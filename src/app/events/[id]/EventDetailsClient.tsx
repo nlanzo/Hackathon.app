@@ -245,15 +245,14 @@ export function EventDetailsClient({ event, eventId }: EventDetailsClientProps) 
                     {event.description}
                   </p>
                   
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">What You&apos;ll Build</h4>
-                  <p className="text-gray-700 mb-4">
-                    Create innovative applications that address real-world challenges. Your project could be anything from a healthcare diagnostic tool to an educational platform, from a sustainability monitoring system to a creative content generator.
-                  </p>
-                  
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Technologies & APIs</h4>
-                  <p className="text-gray-700">
-                    We&apos;ll provide access to various APIs and tools. You&apos;ll also have access to cloud computing resources to deploy your applications.
-                  </p>
+                  {event.description && event.description.length > 100 && (
+                    <>
+                      <h4 className="text-lg font-semibold text-gray-900 mb-2">Additional Information</h4>
+                      <p className="text-gray-700 mb-4">
+                        This hackathon encourages creativity and innovation. Build something that showcases your skills and addresses real-world challenges.
+                      </p>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
