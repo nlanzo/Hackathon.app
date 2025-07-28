@@ -47,7 +47,7 @@ export default function Home() {
               Everything you need for successful hackathons
             </h2>
             <p className="text-xl text-gray-600">
-              From event creation to winner announcements, we've got you covered
+              From event creation to winner announcements, we&apos;ve got you covered
             </p>
           </div>
           

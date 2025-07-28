@@ -33,16 +33,36 @@ export default async function TeamPage({ params }: TeamPageProps) {
       throw memberError;
     }
 
-    // Note: Access control will be handled on the client side
+    // Fetch the event this team is registered for
+    const { data: registrationData, error: registrationError } = await supabase
+      .from('registrations')
+      .select('event_id')
+      .eq('team_id', id)
+      .single();
 
-    // Create a mock event for the team (since we don't have event context)
-    const mockEvent = {
-      id: 'mock-event',
+    let eventData = null;
+    if (registrationData?.event_id) {
+      const { data: event, error: eventError } = await supabase
+        .from('events')
+        .select('*')
+        .eq('id', registrationData.event_id)
+        .single();
+      
+      if (!eventError && event) {
+        eventData = event;
+      }
+    }
+
+    // Fallback to default values if no event is found
+    const event = eventData || {
+      id: 'default-event',
       name: 'Team Management',
       max_team_size: 3,
       start_date: new Date().toISOString(),
       end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
     };
+
+    // Note: Access control will be handled on the client side
 
     return (
       <div className="min-h-screen bg-gray-50">
@@ -51,7 +71,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
           team={teamData} 
           teamId={id} 
           memberCount={memberData?.length || 0}
-          mockEvent={mockEvent}
+          event={event}
         />
       </div>
     );

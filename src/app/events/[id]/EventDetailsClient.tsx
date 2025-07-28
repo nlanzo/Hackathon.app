@@ -19,7 +19,7 @@ interface EventDetailsClientProps {
 export function EventDetailsClient({ event, eventId }: EventDetailsClientProps) {
   const { user } = useAuth();
   const [isRegistered, setIsRegistered] = useState(false);
-  const [myTeam, setMyTeam] = useState<any>(null);
+  const [myTeam, setMyTeam] = useState<{ id: string; name: string; description?: string; owner_id: string } | null>(null);
   const [isEventCreator, setIsEventCreator] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showCancelModal, setShowCancelModal] = useState(false);

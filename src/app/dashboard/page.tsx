@@ -13,6 +13,7 @@ import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { createClient } from "@/lib/supabase";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { calculateEventStatus } from "@/lib/utils";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -113,7 +114,8 @@ export default function Dashboard() {
         ...event,
         role: "participant",
         user_status: "registered",
-        progress: 0
+        progress: 0,
+        status: calculateEventStatus(event.start_date, event.end_date)
       })) || [];
 
       setMyEvents(transformedUserEvents);
@@ -135,7 +137,8 @@ export default function Dashboard() {
         ...event,
         role: "organizer",
         user_status: "active",
-        progress: 0
+        progress: 0,
+        status: calculateEventStatus(event.start_date, event.end_date)
       })) || [];
 
       setHostedEvents(transformedHostedEvents);

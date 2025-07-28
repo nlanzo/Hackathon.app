@@ -286,7 +286,7 @@ export function EventRegistrationClient({ event, eventId }: EventRegistrationCli
           <CardHeader>
             <h2 className="text-xl font-semibold text-gray-900">Team Members</h2>
             <p className="text-gray-600">
-              Add team members (you're already included as the team leader)
+                              Add team members (you&apos;re already included as the team leader)
             </p>
           </CardHeader>
           <CardContent>
@@ -414,7 +414,7 @@ export function EventRegistrationClient({ event, eventId }: EventRegistrationCli
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <h3 className="text-sm font-medium text-yellow-900 mb-2">Important Notes</h3>
                 <ul className="text-sm text-yellow-800 space-y-1">
-                  <li>• You'll be the team leader and can manage team members</li>
+                  <li>• You&apos;ll be the team leader and can manage team members</li>
                   <li>• You can invite additional members after registration</li>
                   <li>• You can modify your team until the registration deadline</li>
                   <li>• Make sure all team members have Discord accounts for communication</li>

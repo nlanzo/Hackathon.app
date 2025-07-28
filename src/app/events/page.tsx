@@ -1,7 +1,8 @@
 import { EventWithDetails } from "@/lib/types";
 import { Navigation } from "@/components/layout/Navigation";
 import { createClient } from "@/lib/supabase";
-import { EventsListingClient } from "./EventsListingClient";
+import { EventsListingClient } from "@/app/events/EventsListingClient";
+import { calculateEventStatus } from "@/lib/utils";
 
 export default async function EventsPage() {
   const supabase = createClient();
@@ -20,11 +21,11 @@ export default async function EventsPage() {
     // Transform events to match EventWithDetails type
     const events: EventWithDetails[] = eventsData?.map(event => ({
       ...event,
-      current_participants: 0,
+      current_participants: 0, // Will be calculated separately
       max_teams: 50,
       max_team_size: 3,
       theme: "General",
-      status: "upcoming",
+      status: calculateEventStatus(event.start_date, event.end_date),
       location: "Virtual (Online)",
       rules_list: event.rules ? event.rules.split('\n') : []
     })) || [];

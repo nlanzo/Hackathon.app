@@ -149,8 +149,8 @@ export function EventCreationClient() {
         {user && (
           <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>Note:</strong> You're creating this event as {user.user_metadata?.full_name || user.email}. 
-              You'll be able to manage this event after creation.
+              <strong>Note:</strong> You&apos;re creating this event as {user.user_metadata?.full_name || user.email}. 
+                              You&apos;ll be able to manage this event after creation.
             </p>
           </div>
         )}

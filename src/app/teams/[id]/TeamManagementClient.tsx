@@ -7,26 +7,27 @@ import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { createClient } from "@/lib/supabase";
+import { Event } from '@/lib/types';
 
 interface TeamManagementClientProps {
-  team: any;
+  team: { id: string; name: string; description?: string; owner_id: string; created_at: string; updated_at: string };
   teamId: string;
   memberCount: number;
-  mockEvent: any;
+  event: Event;
 }
 
 interface TeamMember {
   id: string;
   name: string;
-  email: string;
+  discord_username?: string;
   avatar?: string;
   is_owner: boolean;
 }
 
-export function TeamManagementClient({ team, teamId, memberCount, mockEvent }: TeamManagementClientProps) {
+export function TeamManagementClient({ team, teamId, memberCount, event }: TeamManagementClientProps) {
   const { user } = useAuth();
   const [members, setMembers] = useState<TeamMember[]>([]);
-  const [newMemberEmail, setNewMemberEmail] = useState('');
+  const [newMemberDiscordUsername, setNewMemberDiscordUsername] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -80,11 +81,11 @@ export function TeamManagementClient({ team, teamId, memberCount, mockEvent }: T
 
         // Transform member data with real user information
         const transformedMembers: TeamMember[] = memberData.map(member => {
-          const userProfile = userProfiles.find((u: any) => u.id === member.user_id);
+          const userProfile = userProfiles.find((u: { id: string; full_name?: string; discord_username?: string; email?: string; avatar_url?: string }) => u.id === member.user_id);
           return {
             id: member.user_id,
-            name: userProfile?.full_name || userProfile?.discord_username || userProfile?.email || 'Unknown User',
-            email: userProfile?.email || 'No email',
+            name: userProfile?.full_name || userProfile?.discord_username || 'Unknown User',
+            discord_username: userProfile?.discord_username,
             avatar: userProfile?.avatar_url,
             is_owner: team.owner_id === member.user_id
           };
@@ -101,23 +102,24 @@ export function TeamManagementClient({ team, teamId, memberCount, mockEvent }: T
   };
 
   const addMember = () => {
-    if (!newMemberEmail.trim()) return;
+    if (!newMemberDiscordUsername.trim()) return;
     
-    // Check if member already exists
-    if (members.some(m => m.email === newMemberEmail.trim())) {
+    // Check if member already exists (using Discord username)
+    if (members.some(m => m.discord_username === newMemberDiscordUsername.trim())) {
       setError('This member is already in the team');
       return;
     }
 
     // Check team size limit
-    if (members.length >= mockEvent.max_team_size) {
-      setError(`Team size cannot exceed ${mockEvent.max_team_size} members`);
+    const maxTeamSize = event.max_team_size || 3;
+    if (members.length >= maxTeamSize) {
+      setError(`Team size cannot exceed ${maxTeamSize} members`);
       return;
     }
 
     setError('');
-    setSuccess('Member invitation will be sent via email (feature coming soon)');
-    setNewMemberEmail('');
+    setSuccess('Member invitation will be sent via Discord (feature coming soon)');
+    setNewMemberDiscordUsername('');
   };
 
   const removeMember = (memberId: string) => {
@@ -213,7 +215,7 @@ export function TeamManagementClient({ team, teamId, memberCount, mockEvent }: T
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h3 className="text-sm font-medium text-blue-900 mb-2">Team Details</h3>
                   <div className="text-sm text-blue-700 space-y-1">
-                    <p>• Team Size: {members.length}/{mockEvent.max_team_size} members</p>
+                    <p>• Team Size: {members.length}/{event.max_team_size || 3} members</p>
                     <p>• Created: {new Date(team.created_at).toLocaleDateString()}</p>
                     <p>• Status: Active</p>
                   </div>
@@ -229,7 +231,7 @@ export function TeamManagementClient({ team, teamId, memberCount, mockEvent }: T
             <CardHeader>
               <h3 className="text-lg font-semibold text-gray-900">Team Members</h3>
               <p className="text-sm text-gray-600">
-                {members.length}/{mockEvent.max_team_size} members
+                {members.length}/{event.max_team_size || 3} members
               </p>
             </CardHeader>
             <CardContent>
@@ -250,14 +252,13 @@ export function TeamManagementClient({ team, teamId, memberCount, mockEvent }: T
                       )}
                       <div>
                         <div className="flex items-center space-x-2">
-                          <p className="text-sm font-medium text-gray-900">{member.name}</p>
+                          <p className="text-sm font-medium text-gray-900">
+                            {member.name}
+                          </p>
                           {member.is_owner && (
                             <Crown className="w-4 h-4 text-yellow-500" />
                           )}
                         </div>
-                        <p className="text-xs text-gray-500">
-                          {member.email.includes('@') ? member.email : `@${member.email}`}
-                        </p>
                       </div>
                     </div>
                     {!member.is_owner && (
@@ -273,17 +274,17 @@ export function TeamManagementClient({ team, teamId, memberCount, mockEvent }: T
               </div>
 
               {/* Add New Member */}
-              {members.length < mockEvent.max_team_size && (
+              {members.length < (event.max_team_size || 3) && (
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <h4 className="text-sm font-medium text-gray-700 mb-3">Invite New Member</h4>
                   <div className="flex space-x-2">
                     <input
-                      type="email"
-                      value={newMemberEmail}
-                      onChange={(e) => setNewMemberEmail(e.target.value)}
+                      type="text"
+                      value={newMemberDiscordUsername}
+                      onChange={(e) => setNewMemberDiscordUsername(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && addMember()}
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                      placeholder="Enter email address"
+                      placeholder="Enter Discord username"
                     />
                     <Button
                       onClick={addMember}
@@ -296,7 +297,7 @@ export function TeamManagementClient({ team, teamId, memberCount, mockEvent }: T
                     </Button>
                   </div>
                   <p className="text-xs text-gray-500 mt-2">
-                    Member will receive an email invitation
+                    Member will receive a Discord invitation
                   </p>
                 </div>
               )}

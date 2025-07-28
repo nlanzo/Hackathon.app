@@ -35,7 +35,7 @@ export function ProjectSubmissionClient({ event, eventId }: ProjectSubmissionCli
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [myTeam, setMyTeam] = useState<any>(null);
+  const [myTeam, setMyTeam] = useState<{ id: string; name: string; description?: string; owner_id: string } | null>(null);
   const [existingSubmission, setExistingSubmission] = useState<Submission | null>(null);
   const [isTeamCaptain, setIsTeamCaptain] = useState(false);
 
