@@ -1,15 +1,16 @@
 'use client';
 
-import Link from "next/link";
-import { Calendar, Users, Trophy, Clock, MapPin, DollarSign, Github, ExternalLink, ArrowLeft, AlertTriangle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Calendar, Clock, MapPin, Users, Trophy, ArrowLeft, Crown, X, AlertTriangle, Save, Github, ExternalLink } from "lucide-react";
 import { EventWithDetails } from "@/lib/types";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { createClient } from "@/lib/supabase";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface EventDetailsClientProps {
   event: EventWithDetails;
@@ -91,22 +92,6 @@ export function EventDetailsClient({ event, eventId }: EventDetailsClientProps) 
       hour: '2-digit',
       minute: '2-digit'
     });
-  };
-
-  const getTimeUntil = (dateString: string) => {
-    const now = new Date();
-    const target = new Date(dateString);
-    const diff = target.getTime() - now.getTime();
-    
-    if (diff <= 0) return "Started";
-    
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    
-    if (days > 0) return `${days}d ${hours}h ${minutes}m`;
-    if (hours > 0) return `${hours}h ${minutes}m`;
-    return `${minutes}m`;
   };
 
   const handleCancelEvent = async () => {

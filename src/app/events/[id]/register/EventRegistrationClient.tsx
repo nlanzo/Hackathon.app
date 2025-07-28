@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft, Users, Plus, X, CheckCircle, AlertCircle } from "lucide-react";
+import { Calendar, Clock, MapPin, Users, Trophy, ArrowLeft, Plus, X, CheckCircle, AlertCircle } from "lucide-react";
 import { EventWithDetails } from "@/lib/types";
-import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { useAuth } from "@/components/providers/AuthProvider";
+import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { createClient } from "@/lib/supabase";
+import { useAuth } from "@/components/providers/AuthProvider";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface EventRegistrationClientProps {
   event: EventWithDetails;

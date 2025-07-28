@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft, Calendar, Users, Trophy, Clock, MapPin, DollarSign, Plus, X, Save } from "lucide-react";
-import { Card, CardHeader, CardContent } from "@/components/ui/Card";
+import { Calendar, Users, Trophy, Clock, MapPin, DollarSign, Plus, Save, ArrowLeft, X } from "lucide-react";
+import { EventWithDetails } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
-import { useAuth } from "@/components/providers/AuthProvider";
+import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { createClient } from "@/lib/supabase";
+import { useAuth } from "@/components/providers/AuthProvider";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export function EventCreationClient() {
   const router = useRouter();
@@ -346,7 +347,7 @@ export function EventCreationClient() {
                   placeholder="e.g., Learning Experience & Recognition, Mentorship Opportunities, Certificate of Achievement, Featured on our Blog, etc."
                 />
                 <p className="text-xs text-gray-500 mt-2">
-                  Examples: "Learning Experience & Recognition", "Mentorship with Industry Experts", "Certificate of Achievement", "Featured Project Showcase"
+                  Examples: &quot;Learning Experience &amp; Recognition&quot;, &quot;Mentorship with Industry Experts&quot;, &quot;Certificate of Achievement&quot;, &quot;Featured Project Showcase&quot;
                 </p>
               </div>
             </div>

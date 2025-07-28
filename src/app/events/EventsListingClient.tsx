@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Calendar, Users, Trophy, Search, Filter, Plus } from "lucide-react";
+import { Search, Calendar, MapPin, Users, Trophy, Clock, Plus } from "lucide-react";
 import { EventWithDetails } from "@/lib/types";
+import { EventCard } from "@/components/events/EventCard";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { SearchBar } from "@/components/ui/SearchBar";
@@ -28,21 +29,6 @@ export function EventsListingClient({ events }: EventsListingClientProps) {
       day: 'numeric',
       year: 'numeric'
     });
-  };
-
-  const getTimeUntil = (dateString: string) => {
-    const now = new Date();
-    const target = new Date(dateString);
-    const diff = target.getTime() - now.getTime();
-    
-    if (diff <= 0) return "Started";
-    
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    
-    if (days > 0) return `${days}d ${hours}h`;
-    if (hours > 0) return `${hours}h`;
-    return "Less than 1h";
   };
 
   return (

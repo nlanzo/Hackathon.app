@@ -6,7 +6,6 @@ import { UserStats, UserEvent, TeamWithMembers } from "@/lib/types";
 import { Navigation } from "@/components/layout/Navigation";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatsCard } from "@/components/dashboard/StatsCard";
-import { EventsSection } from "@/components/dashboard/EventsSection";
 import { TeamsSection } from "@/components/dashboard/TeamsSection";
 import { DashboardEventCard } from "@/components/dashboard/EventCard";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
@@ -120,11 +119,6 @@ export default function Dashboard() {
 
       setMyEvents(transformedUserEvents);
 
-      // Debug: First let's see all events in the database
-      const { data: allEvents, error: allEventsError } = await supabase
-        .from('events')
-        .select('*');
-      
       // Fetch events the user is hosting (owner)
       const { data: hostedEventsData, error: hostedEventsError } = await supabase
         .from('events')

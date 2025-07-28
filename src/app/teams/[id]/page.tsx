@@ -85,7 +85,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Team Not Found</h2>
-            <p className="text-gray-600 mb-4">The team you're looking for doesn't exist or you don't have access to it.</p>
+            <p className="text-gray-600 mb-4">The team you&apos;re looking for doesn&apos;t exist or you don&apos;t have access to it.</p>
             <Link href="/dashboard" className="text-blue-600 hover:text-blue-800">
               ← Back to Dashboard
             </Link>

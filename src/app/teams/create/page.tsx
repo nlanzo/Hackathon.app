@@ -36,7 +36,7 @@ export default function CreateTeamPage() {
                   <h3 className="font-medium text-gray-900">Teams are Event-Specific</h3>
                   <p className="text-gray-600">
                     Teams are created automatically when you register for a hackathon event. 
-                    You can't create a team without registering for an event first.
+                    You can&apos;t create a team without registering for an event first.
                   </p>
                 </div>
               </div>
