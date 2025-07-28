@@ -30,15 +30,23 @@ export default function Dashboard() {
   const hasFetched = useRef(false);
 
   useEffect(() => {
-    fetchDashboardData();
-  }, [fetchDashboardData, loading, user]);
+    if (user?.id && !hasFetched.current) {
+      hasFetched.current = true;
+      fetchDashboardData();
+    }
+    
+    // Reset the flag when user changes
+    return () => {
+      hasFetched.current = false;
+    };
+  }, [user?.id]);
 
   async function fetchDashboardData() {
     const supabase = createClient();
     
     try {
 
-      // Fetch user's teams (simplified query)
+      // Fetch user's teams (both owned and member of)
       const { data: teamMemberships, error: teamMembershipsError } = await supabase
         .from('team_members')
         .select('team_id')
@@ -46,12 +54,28 @@ export default function Dashboard() {
 
       if (teamMembershipsError) throw teamMembershipsError;
 
-      const teamIds = teamMemberships?.map(tm => tm.team_id) || [];
+      // Get teams user is a member of
+      const memberTeamIds = teamMemberships?.map(tm => tm.team_id) || [];
       
+      // Get teams user owns
+      const { data: ownedTeams, error: ownedTeamsError } = await supabase
+        .from('teams')
+        .select('*')
+        .eq('owner_id', user?.id);
+
+      if (ownedTeamsError) throw ownedTeamsError;
+
+      // Combine all team IDs (both owned and member of)
+      const allTeamIds = [
+        ...memberTeamIds,
+        ...(ownedTeams?.map(t => t.id) || [])
+      ];
+      
+      // Fetch all teams (both owned and member of)
       const { data: teams, error: teamsError } = await supabase
         .from('teams')
         .select('*')
-        .in('id', teamIds);
+        .or(`id.in.(${allTeamIds.join(',')})`);
 
       if (teamsError) throw teamsError;
 
@@ -59,7 +83,7 @@ export default function Dashboard() {
       const { data: teamMembers, error: teamMembersError } = await supabase
         .from('team_members')
         .select('team_id, user_id')
-        .in('team_id', teamIds);
+        .in('team_id', allTeamIds);
 
       if (teamMembersError) throw teamMembersError;
 
@@ -83,7 +107,7 @@ export default function Dashboard() {
           user: { username: 'Loading...' } // Will be populated by client-side fetch
         })) || [],
         event: null,
-        role: "Member",
+        role: team.owner_id === user?.id ? "Owner" : "Member",
         status: "active"
       })) || [];
 
@@ -93,7 +117,7 @@ export default function Dashboard() {
       const { data: userEvents, error: userEventsError } = await supabase
         .from('registrations')
         .select('event_id')
-        .in('team_id', teams?.map(t => t.id) || []);
+        .in('team_id', allTeamIds);
 
       if (userEventsError) throw userEventsError;
 
@@ -136,7 +160,7 @@ export default function Dashboard() {
       const { data: submissions, error: submissionsError } = await supabase
         .from('submissions')
         .select('*')
-        .in('team_id', teamIds);
+        .in('team_id', allTeamIds);
 
       if (submissionsError) {
         console.error('Error fetching submissions:', submissionsError);
