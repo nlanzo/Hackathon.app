@@ -1,10 +1,10 @@
 'use client';
 
-import { useAuth } from "@/components/providers/AuthProvider";
 import { Navigation } from "@/components/layout/Navigation";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { User, Mail, Calendar, Edit } from "lucide-react";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { User, Settings } from "lucide-react";
 import { useState } from "react";
 
 export default function ProfilePage() {
@@ -66,7 +66,7 @@ export default function ProfilePage() {
                     size="sm"
                     onClick={() => setIsEditing(!isEditing)}
                   >
-                    <Edit className="w-4 h-4 mr-2" />
+                    <Settings className="w-4 h-4 mr-2" />
                     {isEditing ? 'Cancel' : 'Edit'}
                   </Button>
                 </div>
@@ -177,7 +177,7 @@ export default function ProfilePage() {
                     variant="outline"
                     className="w-full justify-start"
                   >
-                    <Edit className="w-4 h-4 mr-2" />
+                    <Settings className="w-4 h-4 mr-2" />
                     Account Settings
                   </Button>
                 </div>

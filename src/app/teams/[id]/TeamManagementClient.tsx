@@ -1,18 +1,17 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
-import { ArrowLeft, Users, Plus, X, Crown, Mail } from "lucide-react";
+import { ArrowLeft, Plus, X, Crown, Mail } from "lucide-react";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { useAuth } from "@/components/providers/AuthProvider";
 import { createClient } from "@/lib/supabase";
+import { useAuth } from "@/components/providers/AuthProvider";
+import Link from "next/link";
 import { Event } from '@/lib/types';
 
 interface TeamManagementClientProps {
   team: { id: string; name: string; description?: string; owner_id: string; created_at: string; updated_at: string };
   teamId: string;
-  memberCount: number;
   event: Event;
 }
 
@@ -24,7 +23,7 @@ interface TeamMember {
   is_owner: boolean;
 }
 
-export function TeamManagementClient({ team, teamId, memberCount, event }: TeamManagementClientProps) {
+export function TeamManagementClient({ team, teamId, event }: TeamManagementClientProps) {
   const { user } = useAuth();
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [newMemberDiscordUsername, setNewMemberDiscordUsername] = useState('');
@@ -36,9 +35,9 @@ export function TeamManagementClient({ team, teamId, memberCount, event }: TeamM
     if (user?.id) {
       fetchTeamMembers();
     }
-  }, [user?.id, teamId]);
+  }, [user?.id, teamId, fetchTeamMembers]);
 
-  const fetchTeamMembers = async () => {
+  async function fetchTeamMembers() {
     const supabase = createClient();
     
     try {
@@ -99,7 +98,7 @@ export function TeamManagementClient({ team, teamId, memberCount, event }: TeamM
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const addMember = () => {
     if (!newMemberDiscordUsername.trim()) return;

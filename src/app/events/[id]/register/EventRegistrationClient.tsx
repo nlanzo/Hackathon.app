@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { Calendar, Clock, MapPin, Users, Trophy, ArrowLeft, Plus, X, CheckCircle, AlertCircle } from "lucide-react";
+import { ArrowLeft, Plus, X, CheckCircle, AlertCircle } from "lucide-react";
 import { EventWithDetails } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
@@ -44,7 +44,7 @@ export function EventRegistrationClient({ event, eventId }: EventRegistrationCli
         avatar: user.user_metadata?.avatar_url || user.user_metadata?.picture
       }]);
     }
-  }, [user]);
+  }, [user, members.length]);
 
   const addMember = () => {
     if (!newMemberEmail.trim()) return;

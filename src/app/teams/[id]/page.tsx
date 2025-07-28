@@ -23,8 +23,8 @@ export default async function TeamPage({ params }: TeamPageProps) {
       throw teamError;
     }
 
-    // Fetch team members
-    const { data: memberData, error: memberError } = await supabase
+    // Fetch team members (for access control)
+    const { error: memberError } = await supabase
       .from('team_members')
       .select('user_id')
       .eq('team_id', id);
@@ -34,7 +34,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
     }
 
     // Fetch the event this team is registered for
-    const { data: registrationData, error: registrationError } = await supabase
+    const { data: registrationData } = await supabase
       .from('registrations')
       .select('event_id')
       .eq('team_id', id)
@@ -70,7 +70,6 @@ export default async function TeamPage({ params }: TeamPageProps) {
         <TeamManagementClient 
           team={teamData} 
           teamId={id} 
-          memberCount={memberData?.length || 0}
           event={event}
         />
       </div>

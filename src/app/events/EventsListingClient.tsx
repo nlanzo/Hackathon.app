@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { Search, Calendar, MapPin, Users, Trophy, Clock, Plus } from "lucide-react";
+import { Search, Calendar, Users, Trophy, Plus } from "lucide-react";
 import { EventWithDetails } from "@/lib/types";
-import { EventCard } from "@/components/events/EventCard";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { SearchBar } from "@/components/ui/SearchBar";

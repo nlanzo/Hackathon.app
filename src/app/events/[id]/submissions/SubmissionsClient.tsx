@@ -51,14 +51,7 @@ export function SubmissionsClient({ event, eventId, submissions }: SubmissionsCl
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [teamMembers, setTeamMembers] = useState<Record<string, TeamMember[]>>({});
 
-  useEffect(() => {
-    if (user?.id) {
-      checkUserVotes();
-    }
-    fetchTeamMembers();
-  }, [user?.id, eventId, submissions]);
-
-  const fetchTeamMembers = async () => {
+  async function fetchTeamMembers() {
     const supabase = createClient();
     try {
       const teamIds = submissions.map(s => s.team_id);
@@ -111,9 +104,9 @@ export function SubmissionsClient({ event, eventId, submissions }: SubmissionsCl
     } catch (error) {
       console.error('Error fetching team members:', error);
     }
-  };
+  }
 
-  const checkUserVotes = async () => {
+  async function checkUserVotes() {
     const supabase = createClient();
     try {
       // Get user's teams
@@ -136,7 +129,14 @@ export function SubmissionsClient({ event, eventId, submissions }: SubmissionsCl
     } catch (error) {
       console.error('Error checking user votes:', error);
     }
-  };
+  }
+
+  useEffect(() => {
+    if (user?.id) {
+      checkUserVotes();
+    }
+    fetchTeamMembers();
+  }, [user?.id, eventId, submissions, checkUserVotes, fetchTeamMembers]);
 
   const handleVote = async (submissionId: string) => {
     if (!user) return;
@@ -160,14 +160,7 @@ export function SubmissionsClient({ event, eventId, submissions }: SubmissionsCl
       // Mark as voted
       setVotedSubmissions(prev => new Set([...prev, submissionId]));
 
-      // Update local state
-      const updatedSubmissions = submissions.map(submission => 
-        submission.id === submissionId 
-          ? { ...submission, votes: submission.votes + 1 }
-          : submission
-      );
-
-      // Force re-render (in a real app, you'd use proper state management)
+      // TODO: use proper state management here
       window.location.reload();
 
     } catch (error) {

@@ -30,15 +30,10 @@ export default function Dashboard() {
   const hasFetched = useRef(false);
 
   useEffect(() => {
-    if (user?.id && !hasFetched.current) {
-      hasFetched.current = true;
-      fetchDashboardData();
-    } else if (!user && !loading) {
-      setLoading(false);
-    }
-  }, [user?.id]); // Only depend on user.id, not the entire user object
+    fetchDashboardData();
+  }, [fetchDashboardData, loading, user]);
 
-  const fetchDashboardData = async () => {
+  async function fetchDashboardData() {
     const supabase = createClient();
     
     try {
@@ -161,7 +156,7 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   if (loading) {
     return (
@@ -254,7 +249,6 @@ export default function Dashboard() {
                 ) : (
                   <EmptyState
                     icon={<Calendar className="w-16 h-16" />}
-                    title="No Events Yet"
                     description="You haven&apos;t registered for any events yet. Browse available events to get started!"
                     action={{
                       label: "Browse Events",
@@ -285,7 +279,6 @@ export default function Dashboard() {
                 ) : (
                   <EmptyState
                     icon={<Calendar className="w-16 h-16" />}
-                    title="No Hosted Events"
                     description="You haven&apos;t created any events yet. Create your first event to get started!"
                     action={{
                       label: "Create Event",

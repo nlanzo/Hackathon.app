@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from "react";
-import { Calendar, Users, Trophy, Clock, MapPin, DollarSign, Plus, Save, ArrowLeft, X } from "lucide-react";
-import { EventWithDetails } from "@/lib/types";
+import { Save, ArrowLeft, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { createClient } from "@/lib/supabase";

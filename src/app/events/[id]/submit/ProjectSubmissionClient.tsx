@@ -46,12 +46,10 @@ export function ProjectSubmissionClient({ event, eventId }: ProjectSubmissionCli
   });
 
   useEffect(() => {
-    if (user?.id) {
-      checkTeamAndSubmission();
-    }
-  }, [user?.id, eventId]);
+    checkTeamAndSubmission();
+  }, [checkTeamAndSubmission]);
 
-  const checkTeamAndSubmission = async () => {
+  async function checkTeamAndSubmission() {
     const supabase = createClient();
     
     try {

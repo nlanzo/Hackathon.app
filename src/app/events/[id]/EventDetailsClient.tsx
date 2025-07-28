@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { Calendar, Clock, MapPin, Users, Trophy, ArrowLeft, Crown, X, AlertTriangle, Save, Github, ExternalLink } from "lucide-react";
+import { Calendar, Clock, MapPin, Users, Trophy, ArrowLeft, AlertTriangle, Github, ExternalLink } from "lucide-react";
 import { EventWithDetails } from "@/lib/types";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/Button";
@@ -10,7 +10,6 @@ import { Modal } from "@/components/ui/Modal";
 import { createClient } from "@/lib/supabase";
 import { useAuth } from "@/components/providers/AuthProvider";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 interface EventDetailsClientProps {
   event: EventWithDetails;
@@ -28,14 +27,10 @@ export function EventDetailsClient({ event, eventId }: EventDetailsClientProps) 
   const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
-    if (user?.id) {
-      checkRegistrationStatus();
-    } else {
-      setLoading(false);
-    }
-  }, [user?.id, eventId]);
+    checkRegistrationStatus();
+  }, [checkRegistrationStatus]);
 
-  const checkRegistrationStatus = async () => {
+  async function checkRegistrationStatus() {
     const supabase = createClient();
     
     try {

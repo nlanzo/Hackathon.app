@@ -101,7 +101,6 @@ export function TeamsSection({ teams }: TeamsSectionProps) {
         ) : (
           <EmptyState
             icon={<Users className="w-12 h-12" />}
-            title="No Teams"
             description="You haven't joined any teams yet"
             action={{
               label: "Create Team",
