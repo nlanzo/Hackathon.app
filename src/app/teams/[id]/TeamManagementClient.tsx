@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ArrowLeft, Plus, X, Crown, Mail } from "lucide-react";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -35,9 +35,9 @@ export function TeamManagementClient({ team, teamId, event }: TeamManagementClie
     if (user?.id) {
       fetchTeamMembers();
     }
-  }, [user?.id, teamId, fetchTeamMembers]);
+  }, [user?.id, teamId]);
 
-  async function fetchTeamMembers() {
+  const fetchTeamMembers = useCallback(async () => {
     const supabase = createClient();
     
     try {
@@ -98,7 +98,7 @@ export function TeamManagementClient({ team, teamId, event }: TeamManagementClie
     } finally {
       setLoading(false);
     }
-  }
+  }, [user?.id, teamId, team.owner_id]);
 
   const addMember = () => {
     if (!newMemberDiscordUsername.trim()) return;
