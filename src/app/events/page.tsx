@@ -18,17 +18,19 @@ export default async function EventsPage() {
       throw eventsError;
     }
 
-    // Transform events to match EventWithDetails type
-    const events: EventWithDetails[] = eventsData?.map(event => ({
-      ...event,
-      current_participants: 0, // Will be calculated separately
-      max_teams: 50,
-      max_team_size: 3,
-      theme: "General",
-      status: calculateEventStatus(event.start_date, event.end_date),
-      location: "Virtual (Online)",
-      rules_list: event.rules ? event.rules.split('\n') : []
-    })) || [];
+    // Transform events to match EventWithDetails type and filter out completed events
+    const events: EventWithDetails[] = eventsData
+      ?.map(event => ({
+        ...event,
+        current_participants: 0, // Will be calculated separately
+        max_teams: 50,
+        max_team_size: 3,
+        theme: "General",
+        status: calculateEventStatus(event.start_date, event.end_date),
+        location: "Virtual (Online)",
+        rules_list: event.rules ? event.rules.split('\n') : []
+      }))
+      .filter(event => event.status !== 'completed') || [];
 
     return (
       <div className="min-h-screen bg-gray-50">
