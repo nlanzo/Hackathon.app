@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Save, ArrowLeft, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
@@ -15,6 +15,8 @@ export function EventCreationClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [minStartDate, setMinStartDate] = useState('');
+  const [maxEndDate, setMaxEndDate] = useState('');
 
   // Form state
   const [formData, setFormData] = useState({
@@ -31,11 +33,27 @@ export function EventCreationClient() {
     prize: 'Learning Experience & Recognition'
   });
 
+  // Set minimum start date (1 hour from now)
+  useEffect(() => {
+    const now = new Date();
+    const minDate = new Date(now.getTime() + 60 * 60 * 1000); // Add 1 hour
+    const minDateString = minDate.toISOString().slice(0, 16); // Format for datetime-local input
+    setMinStartDate(minDateString);
+  }, []);
+
   const handleInputChange = (field: string, value: string | number) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
+
+    // Update max end date when start date changes
+    if (field === 'start_date' && value) {
+      const startDate = new Date(value as string);
+      const maxEndDate = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days later
+      const maxEndDateString = maxEndDate.toISOString().slice(0, 16); // Format for datetime-local input
+      setMaxEndDate(maxEndDateString);
+    }
   };
 
   const validateForm = () => {
@@ -55,8 +73,29 @@ export function EventCreationClient() {
       setError('End date is required');
       return false;
     }
+
+    // Validate start date is at least 1 hour from now
+    const now = new Date();
+    const startDate = new Date(formData.start_date);
+    const minStartDate = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour from now
+    
+    if (startDate < minStartDate) {
+      setError('Start date must be at least 1 hour from now');
+      return false;
+    }
+
     if (new Date(formData.start_date) >= new Date(formData.end_date)) {
       setError('End date must be after start date');
+      return false;
+    }
+
+    // Validate end date is at most 7 days after start date
+    const endDate = new Date(formData.end_date);
+    const maxDuration = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+    const actualDuration = endDate.getTime() - startDate.getTime();
+    
+    if (actualDuration > maxDuration) {
+      setError('End date cannot be more than 7 days after the start date');
       return false;
     }
     if (formData.max_team_size < 1 || formData.max_team_size > 10) {
@@ -252,7 +291,11 @@ export function EventCreationClient() {
                   value={formData.start_date}
                   onChange={(e) => handleInputChange('start_date', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                  min={minStartDate}
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Must be at least 1 hour from now
+                </p>
               </div>
 
               <div>
@@ -264,7 +307,12 @@ export function EventCreationClient() {
                   value={formData.end_date}
                   onChange={(e) => handleInputChange('end_date', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                  min={formData.start_date || undefined}
+                  max={maxEndDate || undefined}
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Must be after start date and within 7 days
+                </p>
               </div>
             </div>
           </CardContent>
