@@ -92,8 +92,7 @@ export interface EventWithDetails extends Event {
   status: 'upcoming' | 'active' | 'completed';
   location: string;
   rules_list: string[];
-  cancelled: boolean;
-  cancellation_reason?: string;
+  // Note: cancelled, cancellation_reason, and discord_server_link are inherited from Event
 }
 
 export interface UserStats {

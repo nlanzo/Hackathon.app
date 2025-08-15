@@ -13,6 +13,8 @@ interface ButtonProps {
   type?: 'button' | 'submit';
   disabled?: boolean;
   style?: React.CSSProperties;
+  target?: string;
+  rel?: string;
 }
 
 export function Button({ 
@@ -24,7 +26,9 @@ export function Button({
   onClick,
   type = 'button',
   disabled = false,
-  style
+  style,
+  target,
+  rel
 }: ButtonProps) {
   const baseClasses = 'inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
   
@@ -50,7 +54,7 @@ export function Button({
   
   if (href) {
     return (
-      <a href={href} className={classes} style={style}>
+      <a href={href} className={classes} style={style} target={target} rel={rel}>
         {children}
       </a>
     );

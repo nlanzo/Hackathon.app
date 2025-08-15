@@ -304,15 +304,19 @@ export function EventDetailsClient({ event, eventId }: EventDetailsClientProps) 
                     </Button>
                   )}
                   
-                  <Button
-                    variant="primary"
-                    className="w-full flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
-                    style={{ backgroundColor: '#5865F2' }}
-                    disabled
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    Join Discord (coming soon)
-                  </Button>
+                  {event.discord_server_link ? (
+                    <Button
+                      href={event.discord_server_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      variant="primary"
+                      className="w-full flex items-center justify-center gap-2"
+                      style={{ backgroundColor: '#5865F2' }}
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      Join Discord
+                    </Button>
+                  ) : null}
                   
                   <Button
                     variant="outline"
