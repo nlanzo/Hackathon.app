@@ -24,7 +24,7 @@ export function EventCreationClient() {
     description: '',
     rules: '',
     theme: 'General',
-    location: 'Virtual (Online)',
+    discord_server_link: '',
     start_date: '',
     end_date: '',
     max_teams: 50,
@@ -142,6 +142,7 @@ export function EventCreationClient() {
         start_date: formData.start_date,
         end_date: formData.end_date,
         prize: formData.prize,
+        discord_server_link: formData.discord_server_link || null,
         owner_id: user.id
       };
       
@@ -260,15 +261,18 @@ export function EventCreationClient() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Location
+                  Discord Server Link
                 </label>
                 <input
-                  type="text"
-                  value={formData.location}
-                  onChange={(e) => handleInputChange('location', e.target.value)}
+                  type="url"
+                  value={formData.discord_server_link}
+                  onChange={(e) => handleInputChange('discord_server_link', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                  placeholder="e.g., Virtual, San Francisco, etc."
+                  placeholder="https://discord.gg/your-server-invite"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Optional: Link to your event's Discord server
+                </p>
               </div>
             </div>
           </CardContent>

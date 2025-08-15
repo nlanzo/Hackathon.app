@@ -46,6 +46,7 @@ export interface Event {
   cancellation_reason?: string;
   owner_id?: string;
   prize?: string;
+  discord_server_link?: string;
   created_at: string;
   updated_at: string;
   // Computed fields
