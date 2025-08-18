@@ -2,6 +2,7 @@ import { Navigation } from "@/components/layout/Navigation";
 import { createClient } from "@/lib/supabase";
 import { TeamManagementClient } from "./TeamManagementClient";
 import Link from "next/link";
+import { Event as EventType } from "@/lib/types";
 
 interface TeamPageProps {
   params: Promise<{ id: string }>;
@@ -33,33 +34,41 @@ export default async function TeamPage({ params }: TeamPageProps) {
       throw memberError;
     }
 
-    // Fetch the event this team is registered for
-    const { data: registrationData } = await supabase
+    // Fetch all events this team is registered for
+    const { data: registrations, error: registrationError } = await supabase
       .from('registrations')
       .select('event_id')
-      .eq('team_id', id)
-      .single();
+      .eq('team_id', id);
 
-    let eventData = null;
-    if (registrationData?.event_id) {
-      const { data: event, error: eventError } = await supabase
+    if (registrationError) {
+      console.error('Error fetching registrations:', registrationError);
+    }
+
+    // Fetch event details for registered events
+    let registeredEvents: EventType[] = [];
+    if (registrations && registrations.length > 0) {
+      const eventIds = registrations.map(reg => reg.event_id);
+      const { data: eventDetails, error: eventError } = await supabase
         .from('events')
         .select('*')
-        .eq('id', registrationData.event_id)
-        .single();
-      
-      if (!eventError && event) {
-        eventData = event;
+        .in('id', eventIds);
+
+      if (!eventError && eventDetails) {
+        registeredEvents = eventDetails;
       }
     }
 
-    // Fallback to default values if no event is found
-    const event = eventData || {
+    // Fallback to default values if no events are found
+    const defaultEvent: EventType = {
       id: 'default-event',
       name: 'Team Management',
-      max_team_size: 3,
+      description: 'Default team management event',
+      votes_per_user: 1,
       start_date: new Date().toISOString(),
-      end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+      end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      cancelled: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     };
 
     // Note: Access control will be handled on the client side
@@ -70,7 +79,8 @@ export default async function TeamPage({ params }: TeamPageProps) {
         <TeamManagementClient 
           team={teamData} 
           teamId={id} 
-          event={event}
+          registeredEvents={registeredEvents}
+          defaultEvent={defaultEvent}
         />
       </div>
     );
