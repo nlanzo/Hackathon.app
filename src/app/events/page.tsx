@@ -2,7 +2,7 @@ import { EventWithDetails } from "@/lib/types";
 import { Navigation } from "@/components/layout/Navigation";
 import { createClient } from "@/lib/supabase";
 import { EventsListingClient } from "@/app/events/EventsListingClient";
-import { calculateEventStatus } from "@/lib/utils";
+import { calculateEventStatus, shouldShowOnDashboard } from "@/lib/utils";
 
 export default async function EventsPage() {
   const supabase = createClient();
@@ -18,7 +18,7 @@ export default async function EventsPage() {
       throw eventsError;
     }
 
-    // Transform events to match EventWithDetails type and filter out completed events
+    // Transform events to match EventWithDetails type and filter using dashboard logic
     const events: EventWithDetails[] = eventsData
       ?.map(event => ({
         ...event,
@@ -30,7 +30,7 @@ export default async function EventsPage() {
         location: "Virtual (Online)",
         rules_list: event.rules ? event.rules.split('\n') : []
       }))
-      .filter(event => event.status !== 'completed') || [];
+      .filter(event => shouldShowOnDashboard(event.start_date, event.end_date)) || [];
 
     return (
       <div className="min-h-screen bg-gray-50">

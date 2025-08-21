@@ -7,12 +7,10 @@ import { Navigation } from "@/components/layout/Navigation";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { TeamsSection } from "@/components/dashboard/TeamsSection";
-import { DashboardEventCard } from "@/components/dashboard/EventCard";
-import { Card, CardHeader, CardContent } from "@/components/ui/Card";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { EventTabs } from "@/components/dashboard/EventTabs";
 import { createClient } from "@/lib/supabase";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { calculateEventStatus } from "@/lib/utils";
+import { calculateEventStatus, shouldShowOnDashboard } from "@/lib/utils";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -29,13 +27,10 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const hasFetched = useRef(false);
 
-
-
   const fetchDashboardData = useCallback(async () => {
     const supabase = createClient();
     
     try {
-
       // Fetch user's teams (both owned and member of)
       const { data: teamMemberships, error: teamMembershipsError } = await supabase
         .from('team_members')
@@ -156,13 +151,20 @@ export default function Dashboard() {
         console.error('Error fetching submissions:', submissionsError);
       }
 
-      // Calculate stats
+      // Calculate stats - only count events that should be shown on dashboard
+      const dashboardUserEvents = transformedUserEvents.filter(event => 
+        shouldShowOnDashboard(event.start_date, event.end_date)
+      );
+      const dashboardHostedEvents = transformedHostedEvents.filter(event => 
+        shouldShowOnDashboard(event.start_date, event.end_date)
+      );
+
       setUserStats({
-        active_events: transformedUserEvents.length,
+        active_events: dashboardUserEvents.length,
         my_teams: transformedTeams.length,
         submissions: submissions?.length || 0,
-        upcoming_events: transformedUserEvents.length,
-        hosted_events: transformedHostedEvents.length
+        upcoming_events: dashboardUserEvents.length,
+        hosted_events: dashboardHostedEvents.length
       });
 
     } catch (error) {
@@ -253,67 +255,31 @@ export default function Dashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* My Events - Now the main section */}
+          {/* Events Section - Now using tabs */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Events I'm Registered For */}
-            <Card>
-              <CardHeader>
-                <h2 className="text-xl font-semibold text-gray-900">My Events</h2>
-                <p className="text-gray-600">Events you&apos;re registered for</p>
-              </CardHeader>
-              <CardContent>
-                {myEvents.length > 0 ? (
-                  <div className="space-y-6">
-                    {myEvents.map((event) => (
-                      <DashboardEventCard
-                        key={event.id}
-                        event={event}
-                        variant="registered"
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <EmptyState
-                    icon={<Calendar className="w-16 h-16" />}
-                    description="You haven&apos;t registered for any events yet. Browse available events to get started!"
-                    action={{
-                      label: "Browse Events",
-                      href: "/events"
-                    }}
-                  />
-                )}
-              </CardContent>
-            </Card>
+            {/* My Events with Tabs */}
+            <EventTabs
+              events={myEvents}
+              variant="registered"
+              title="My Events"
+              description="Events you're registered for"
+              emptyStateAction={{
+                label: "Browse Events",
+                href: "/events"
+              }}
+            />
 
-            {/* Events I'm Hosting */}
-            <Card>
-              <CardHeader>
-                <h2 className="text-xl font-semibold text-gray-900">Events I&apos;m Hosting</h2>
-                <p className="text-gray-600">Events you created and are managing</p>
-              </CardHeader>
-              <CardContent>
-                {hostedEvents.length > 0 ? (
-                  <div className="space-y-6">
-                    {hostedEvents.map((event) => (
-                      <DashboardEventCard
-                        key={event.id}
-                        event={event}
-                        variant="hosted"
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <EmptyState
-                    icon={<Calendar className="w-16 h-16" />}
-                    description="You haven&apos;t created any events yet. Create your first event to get started!"
-                    action={{
-                      label: "Create Event",
-                      href: "/events/create"
-                    }}
-                  />
-                )}
-              </CardContent>
-            </Card>
+            {/* Events I'm Hosting with Tabs */}
+            <EventTabs
+              events={hostedEvents}
+              variant="hosted"
+              title="Events I'm Hosting"
+              description="Events you created and are managing"
+              emptyStateAction={{
+                label: "Create Event",
+                href: "/events/create"
+              }}
+            />
           </div>
 
           {/* Sidebar */}
