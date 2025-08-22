@@ -44,9 +44,6 @@ export function DashboardEventCard({ event, variant = 'registered', className = 
             {new Date(event.start_date).toLocaleDateString()} - {new Date(event.end_date).toLocaleDateString()}
           </p>
         </div>
-        <span className={`${colors.bg} ${colors.text} text-xs font-medium px-3 py-1 rounded-full`}>
-          {event.user_status}
-        </span>
       </div>
       <div className="w-full bg-gray-200 rounded-full h-3 mb-3">
         <div 
