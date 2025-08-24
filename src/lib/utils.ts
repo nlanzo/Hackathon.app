@@ -32,4 +32,13 @@ export function shouldShowOnDashboard(startDate: string, endDate: string): boole
   if (now > end && end > oneWeekAgo) return true;
   
   return false;
+}
+
+export function isEventActive(startDate: string, endDate: string): boolean {
+  const now = new Date();
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  
+  // Event is active if it's upcoming or in progress
+  return now < start || (now >= start && now <= end);
 } 

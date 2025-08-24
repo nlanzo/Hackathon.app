@@ -6,7 +6,7 @@ import { DashboardEventCard } from './EventCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Card, CardHeader, CardContent } from '@/components/ui/Card';
 import { Calendar, CheckCircle } from 'lucide-react';
-import { shouldShowOnDashboard } from '@/lib/utils';
+import { isEventActive } from '@/lib/utils';
 
 interface EventTabsProps {
   events: UserEvent[];
@@ -30,9 +30,9 @@ export function EventTabs({
 }: EventTabsProps) {
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active');
   
-  // Filter events based on status
+  // Filter events based on status - use isEventActive for strict separation
   const activeEvents = events.filter(event => 
-    shouldShowOnDashboard(event.start_date, event.end_date)
+    isEventActive(event.start_date, event.end_date)
   );
   const completedEvents = events.filter(event => event.status === 'completed');
   
