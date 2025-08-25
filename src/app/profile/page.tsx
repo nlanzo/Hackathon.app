@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { User, Settings } from "lucide-react";
 import { useState } from "react";
+import Image from "next/image";
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -75,10 +76,12 @@ export default function ProfilePage() {
                 <div className="flex items-start space-x-6">
                   <div className="flex-shrink-0">
                     {getUserAvatar() ? (
-                      <img
+                      <Image
                         src={getUserAvatar()}
                         alt={getUserDisplayName()}
-                        className="w-20 h-20 rounded-full border-4 border-gray-200"
+                        width={80}
+                        height={80}
+                        className="w-20 h-20 rounded-full border-4 border-gray-200 object-cover"
                       />
                     ) : (
                       <div className="w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold">

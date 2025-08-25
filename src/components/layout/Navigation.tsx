@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { LogOut, User, Settings, ChevronDown } from "lucide-react";
+import Image from "next/image";
 
 interface NavigationProps {
   showAuthButtons?: boolean;
@@ -84,10 +85,12 @@ export function Navigation({ showAuthButtons = true }: NavigationProps) {
                 >
                   <div className="relative">
                     {getUserAvatar() ? (
-                      <img
+                      <Image
                         src={getUserAvatar()}
                         alt={getUserDisplayName()}
-                        className="w-8 h-8 rounded-full border-2 border-gray-200"
+                        width={32}
+                        height={32}
+                        className="w-8 h-8 rounded-full border-2 border-gray-200 object-cover"
                       />
                     ) : (
                       <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium">

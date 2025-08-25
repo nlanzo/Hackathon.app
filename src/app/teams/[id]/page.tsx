@@ -58,19 +58,6 @@ export default async function TeamPage({ params }: TeamPageProps) {
       }
     }
 
-    // Fallback to default values if no events are found
-    const defaultEvent: EventType = {
-      id: 'default-event',
-      name: 'Team Management',
-      description: 'Default team management event',
-      votes_per_user: 1,
-      start_date: new Date().toISOString(),
-      end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      cancelled: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-
     // Note: Access control will be handled on the client side
 
     return (
@@ -80,7 +67,6 @@ export default async function TeamPage({ params }: TeamPageProps) {
           team={teamData} 
           teamId={id} 
           registeredEvents={registeredEvents}
-          defaultEvent={defaultEvent}
         />
       </div>
     );

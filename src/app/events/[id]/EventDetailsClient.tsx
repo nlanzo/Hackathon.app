@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Calendar, Clock, MapPin, Users, Trophy, ArrowLeft, AlertTriangle, Github, ExternalLink } from "lucide-react";
 import { EventWithDetails } from "@/lib/types";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -26,11 +26,7 @@ export function EventDetailsClient({ event, eventId }: EventDetailsClientProps) 
   const [cancellationReason, setCancellationReason] = useState('');
   const [cancelling, setCancelling] = useState(false);
 
-  useEffect(() => {
-    checkRegistrationStatus();
-  }, [checkRegistrationStatus]);
-
-  async function checkRegistrationStatus() {
+  const checkRegistrationStatus = useCallback(async () => {
     const supabase = createClient();
     
     try {
@@ -76,7 +72,11 @@ export function EventDetailsClient({ event, eventId }: EventDetailsClientProps) 
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id, event.owner_id, eventId]);
+
+  useEffect(() => {
+    checkRegistrationStatus();
+  }, [checkRegistrationStatus]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {

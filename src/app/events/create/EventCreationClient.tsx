@@ -271,7 +271,7 @@ export function EventCreationClient() {
                   placeholder="https://discord.gg/your-server-invite"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Optional: Link to your event's Discord server
+                  Optional: Link to your event&apos;s Discord server
                 </p>
               </div>
             </div>

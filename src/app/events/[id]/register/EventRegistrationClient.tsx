@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { ArrowLeft, Plus, X, CheckCircle, AlertCircle } from "lucide-react";
 import { EventWithDetails } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
@@ -299,7 +300,7 @@ export function EventRegistrationClient({ event, eventId }: EventRegistrationCli
                     <div key={member.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex items-center space-x-3">
                         {member.avatar ? (
-                          <img src={member.avatar} alt={member.name} className="w-8 h-8 rounded-full" />
+                          <Image src={member.avatar} alt={member.name} width={32} height={32} className="w-8 h-8 rounded-full object-cover" />
                         ) : (
                           <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium">
                             {member.name.charAt(0).toUpperCase()}

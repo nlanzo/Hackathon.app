@@ -8,12 +8,12 @@ import { createClient } from "@/lib/supabase";
 import { useAuth } from "@/components/providers/AuthProvider";
 import Link from "next/link";
 import { Event } from '@/lib/types';
+import Image from "next/image";
 
 interface TeamManagementClientProps {
   team: { id: string; name: string; description?: string; owner_id: string; created_at: string; updated_at: string };
   teamId: string;
   registeredEvents: Event[];
-  defaultEvent: Event;
 }
 
 interface TeamMember {
@@ -24,7 +24,7 @@ interface TeamMember {
   is_owner: boolean;
 }
 
-export function TeamManagementClient({ team, teamId, registeredEvents, defaultEvent }: TeamManagementClientProps) {
+export function TeamManagementClient({ team, teamId, registeredEvents }: TeamManagementClientProps) {
   const { user } = useAuth();
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [newMemberDiscordUsername, setNewMemberDiscordUsername] = useState('');
@@ -32,15 +32,7 @@ export function TeamManagementClient({ team, teamId, registeredEvents, defaultEv
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Use the first registered event for team size limits, or fallback to default
-  const event = registeredEvents.length > 0 ? registeredEvents[0] : defaultEvent;
   const maxTeamSize = 3; // Default team size limit
-
-  useEffect(() => {
-    if (user?.id) {
-      fetchTeamMembers();
-    }
-  }, [user?.id, teamId]);
 
   const fetchTeamMembers = useCallback(async () => {
     const supabase = createClient();
@@ -104,6 +96,12 @@ export function TeamManagementClient({ team, teamId, registeredEvents, defaultEv
       setLoading(false);
     }
   }, [user?.id, teamId, team.owner_id]);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchTeamMembers();
+    }
+  }, [user?.id, teamId, fetchTeamMembers]);
 
   const addMember = () => {
     if (!newMemberDiscordUsername.trim()) return;
@@ -313,7 +311,7 @@ export function TeamManagementClient({ team, teamId, registeredEvents, defaultEv
               ) : (
                 <div className="text-center py-8">
                   <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-500 mb-4">Your team hasn't registered for any events yet.</p>
+                  <p className="text-gray-500 mb-4">Your team hasn&apos;t registered for any events yet.</p>
                   <Link
                     href="/events"
                     className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium"
@@ -342,9 +340,11 @@ export function TeamManagementClient({ team, teamId, registeredEvents, defaultEv
                   <div key={member.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex items-center space-x-3">
                       {member.avatar ? (
-                        <img 
+                        <Image 
                           src={member.avatar} 
                           alt={member.name}
+                          width={32}
+                          height={32}
                           className="w-8 h-8 rounded-full object-cover"
                         />
                       ) : (

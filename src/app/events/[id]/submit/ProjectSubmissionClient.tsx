@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Github, ExternalLink, FileText, Save, AlertTriangle } from "lucide-react";
@@ -45,11 +45,7 @@ export function ProjectSubmissionClient({ event, eventId }: ProjectSubmissionCli
     description: ''
   });
 
-  useEffect(() => {
-    checkTeamAndSubmission();
-  }, [checkTeamAndSubmission]);
-
-  async function checkTeamAndSubmission() {
+  const checkTeamAndSubmission = useCallback(async () => {
     const supabase = createClient();
     
     try {
@@ -122,7 +118,11 @@ export function ProjectSubmissionClient({ event, eventId }: ProjectSubmissionCli
     } catch (error) {
       console.error('Error checking team and submission:', error);
     }
-  };
+  }, [user?.id, eventId]);
+
+  useEffect(() => {
+    checkTeamAndSubmission();
+  }, [checkTeamAndSubmission]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({

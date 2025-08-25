@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { TeamWithMembers } from '@/lib/types';
 
 interface TeamCardProps {
@@ -27,9 +28,11 @@ export function TeamCard({ team, className = '' }: TeamCardProps) {
           {team.members.map((m, index) => (
             <div key={`${m.user_id}-${index}`} className="flex items-center">
               {m.user?.avatar ? (
-                <img 
+                <Image 
                   src={m.user.avatar} 
                   alt={m.user.username || 'Member'}
+                  width={24}
+                  height={24}
                   className="w-6 h-6 rounded-full object-cover border border-gray-200"
                   title={m.user.username || 'Team Member'}
                 />

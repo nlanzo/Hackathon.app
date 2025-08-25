@@ -8,7 +8,7 @@ import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { createClient } from "@/lib/supabase";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface Submission {
   id: string;
@@ -51,7 +51,7 @@ export function SubmissionsClient({ event, eventId, submissions }: SubmissionsCl
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [teamMembers, setTeamMembers] = useState<Record<string, TeamMember[]>>({});
 
-  async function fetchTeamMembers() {
+  const fetchTeamMembers = useCallback(async () => {
     const supabase = createClient();
     try {
       const teamIds = submissions.map(s => s.team_id);
@@ -104,9 +104,9 @@ export function SubmissionsClient({ event, eventId, submissions }: SubmissionsCl
     } catch (error) {
       console.error('Error fetching team members:', error);
     }
-  }
+  }, [submissions]);
 
-  async function checkUserVotes() {
+  const checkUserVotes = useCallback(async () => {
     const supabase = createClient();
     try {
       // Get user's teams
@@ -129,7 +129,7 @@ export function SubmissionsClient({ event, eventId, submissions }: SubmissionsCl
     } catch (error) {
       console.error('Error checking user votes:', error);
     }
-  }
+  }, [user?.id, submissions]);
 
   useEffect(() => {
     if (user?.id) {
