@@ -1,0 +1,13 @@
+# Ignore test files during ESLint checking
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+src/test/**/*
+**/test/**/*
+**/__tests__/**/*
+**/coverage/**/*
+**/node_modules/**/*
+.next/**/*
+dist/**/*
+build/**/*

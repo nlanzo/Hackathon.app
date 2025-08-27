@@ -27,9 +27,9 @@ export function shouldShowOnDashboard(startDate: string, endDate: string): boole
   // Show if in progress
   if (now >= start && now <= end) return true;
   
-  // Show if completed less than 1 week ago
+  // Show if completed less than or equal to 1 week ago
   const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-  if (now > end && end > oneWeekAgo) return true;
+  if (now > end && end >= oneWeekAgo) return true;
   
   return false;
 }
