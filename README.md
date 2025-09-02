@@ -60,17 +60,12 @@ You can sign in with Discord, browse events, create or join teams, and explore t
    ```env
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-   DISCORD_CLIENT_ID=your_discord_client_id
-   DISCORD_CLIENT_SECRET=your_discord_client_secret
-   NEXTAUTH_SECRET=your_nextauth_secret
-   NEXTAUTH_URL=http://localhost:3000
    ```
 
 4. **Database Setup**
    - Create a new Supabase project
    - Run the SQL schema from the project documentation
-   - Enable Discord OAuth in your Supabase dashboard
+   - Enable Discord OAuth in your Supabase dashboard (Authentication > Providers > Discord)
 
 5. **Run the development server**
    ```bash
@@ -101,7 +96,7 @@ npm start
 ### Tech Stack
 - **Frontend**: Next.js 15, TypeScript, Tailwind CSS, shadcn/ui
 - **Backend**: Next.js API routes, Supabase (PostgreSQL)
-- **Authentication**: NextAuth.js with Discord OAuth
+- **Authentication**: Supabase Auth with Discord OAuth
 - **Database**: Supabase with row-level security
 - **Deployment**: Netlify (demo), Vercel-ready
 
