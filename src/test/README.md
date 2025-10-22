@@ -331,7 +331,7 @@ describe("Team Creation", () => {
 - No actual database connection is required
 - Check mock implementations if database operations fail
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [Vitest Documentation](https://vitest.dev/)
 - [Testing Library Best Practices](https://testing-library.com/docs/guiding-principles)
