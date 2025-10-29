@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Calendar, Users, Trophy, Clock, Plus } from "lucide-react";
 import { UserStats, UserEvent, TeamWithMembers } from "@/lib/types";
 import { Navigation } from "@/components/layout/Navigation";
@@ -13,7 +14,8 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { calculateEventStatus, shouldShowOnDashboard } from "@/lib/utils";
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [myTeams, setMyTeams] = useState<TeamWithMembers[]>([]);
   const [myEvents, setMyEvents] = useState<UserEvent[]>([]);
   const [hostedEvents, setHostedEvents] = useState<UserEvent[]>([]);
@@ -175,6 +177,13 @@ export default function Dashboard() {
   }, [user?.id]);
 
   useEffect(() => {
+    // If auth has finished loading and there's no user, redirect to login
+    if (!authLoading && !user) {
+      router.push('/login');
+      return;
+    }
+
+    // Fetch dashboard data if user is authenticated
     if (user?.id && !hasFetched.current) {
       hasFetched.current = true;
       fetchDashboardData();
@@ -184,9 +193,10 @@ export default function Dashboard() {
     return () => {
       hasFetched.current = false;
     };
-  }, [user?.id, fetchDashboardData]);
+  }, [user, authLoading, router, fetchDashboardData]);
 
-  if (loading) {
+  // Show loading while auth is checking or dashboard data is loading
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
