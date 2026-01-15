@@ -19,7 +19,7 @@ export default async function EventsPage() {
     }
 
     // Transform events to match EventWithDetails type
-    // Note: We show ALL events on the events page, not just dashboard-eligible ones
+    // Filter out completed events - only show upcoming and active events
     const events: EventWithDetails[] = eventsData
       ?.map(event => ({
         ...event,
@@ -30,7 +30,8 @@ export default async function EventsPage() {
         status: calculateEventStatus(event.start_date, event.end_date),
         location: "Virtual (Online)",
         rules_list: event.rules ? event.rules.split('\n') : []
-      })) || [];
+      }))
+      .filter(event => event.status !== 'completed') || [];
 
     return (
       <div className="min-h-screen bg-gray-50">
