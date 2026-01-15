@@ -19,7 +19,7 @@
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.52.1",
     "lucide-react": "^0.525.0",
-    "next": "15.4.4",
+    "next": "^15.5.9",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
@@ -31,7 +31,7 @@
     "@types/react-dom": "^19",
     "@vitest/ui": "^2.1.8",
     "eslint": "^9",
-    "eslint-config-next": "15.4.4",
+    "eslint-config-next": "^15.5.9",
     "jsdom": "^25.0.1",
     "tailwindcss": "^4",
     "typescript": "^5",
